@@ -85,7 +85,7 @@ class DisplayManager {
                    std::shared_ptr<Settings> settings,
                    std::shared_ptr<Rtc> rtc,
                    std::shared_ptr<Joystick> joy)
-        : m_pixels(pixels), m_settings(settings), m_joy(joy), m_rtc(rtc) {
+        : m_pixels(pixels), m_settings(settings), m_rtc(rtc), m_joy(joy) {
         ConfigureJoystick();
     }
 

@@ -1,5 +1,9 @@
 #pragma once
+#if FCOS_ESP32_C3
 #include <WiFi.h>
+#elif FCOS_ESP8266
+#include <ESP8266WiFi.h>
+#endif
 #include <display.hpp>
 
 class InfoDisplay : public Display {

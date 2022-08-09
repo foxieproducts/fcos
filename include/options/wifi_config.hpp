@@ -78,8 +78,7 @@ class WiFiConfig : public Numeric {
 
         if ((*m_settings)["WIFI"] == "2" ||
             ((*m_settings)["WIFI"] == "1" &&
-             (*m_settings)["wifi_configured"] != "1") &&
-                !m_wifiMgr.getConfigPortalActive()) {
+             (*m_settings)["wifi_configured"] != "1")) {
             DisplayConfigPortal();
         }
         if (WiFi.isConnected() && (*m_settings)["WIFI"] == "0") {
@@ -138,7 +137,7 @@ class WiFiConfig : public Numeric {
         m_wifiMgr.setSaveParamsCallback([&]() {
             // do stuff with the params (timezone)
             auto names = m_rtc->GetTimezoneNames();
-            int selected = getParam("tz_select").toInt();
+            size_t selected = getParam("tz_select").toInt();
             selected = selected > 0 && selected < names.size() ? selected : 0;
             (*m_settings)["timezone"] = names[selected];
             (*m_settings)["TIMEZONE"] = selected;
@@ -157,10 +156,10 @@ class WiFiConfig : public Numeric {
             )";
 
         auto names = m_rtc->GetTimezoneNames();
-        size_t selected = 0, index = 0;
+        size_t index = 0;
         for (const auto& name : names) {
             m_timeZonesHtml += "<option value='" + String(index) + "'";
-            if ((*m_settings)["TIMEZONE"].as<int>() == index) {
+            if ((*m_settings)["TIMEZONE"].as<size_t>() == index) {
                 m_timeZonesHtml += " selected";
             }
             m_timeZonesHtml += ">" + name + "</option>";

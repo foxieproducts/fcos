@@ -1,9 +1,16 @@
 #pragma once
-#include <WiFi.h>
-#include <display.hpp>
-
+#if FCOS_ESP32_C3
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
+#include <WiFi.h>
+#elif FCOS_ESP8266
+#include <ESP8266HTTPClient.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
+#include <ESP8266httpUpdate.h>
+#define httpUpdate ESPhttpUpdate
+#endif
+#include <display.hpp>
 
 class WebUpdate : public Display {
     enum State_e {
@@ -25,7 +32,6 @@ class WebUpdate : public Display {
 
     virtual void Update() override {
         m_pixels->Clear();
-        char str[10];
         switch (m_state) {
             case CHECKING:
                 m_webVersion = GetVersionFromServer();

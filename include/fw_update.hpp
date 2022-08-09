@@ -1,8 +1,13 @@
 #pragma once
 #include <ArduinoOTA.h>
+
+#if FCOS_ESP32_C3
 #include <ESPmDNS.h>
 #include <WiFi.h>
-#include <memory>
+#elif FCOS_ESP8266
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#endif
 
 #include <elapsed_time.hpp>
 #include <pixels.hpp>

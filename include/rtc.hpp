@@ -2,7 +2,11 @@
 #include <Rtc_Pcf8563.h>
 #include <Time.h>
 #include <Timezone.h>  // https://github.com/JChristensen/Timezone
+#if FCOS_ESP32_C3
 #include <WiFi.h>
+#elif FCOS_ESP8266
+#include <ESP8266WiFi.h>
+#endif
 #include <map>
 
 #include <elapsed_time.hpp>
@@ -148,7 +152,7 @@ class Rtc {
         if (WiFi.isConnected() &&
             m_timeSinceLastNTPUpdate.S() > m_secondsUntilNextNTPUpdate) {
             m_timeSinceLastNTPUpdate.Reset();
-            if (getLocalTime(&m_timeinfo, MAX_WAIT_FOR_NTP_MS)) {
+            if (GetLocalTime(&m_timeinfo, MAX_WAIT_FOR_NTP_MS)) {
                 m_secondsUntilNextNTPUpdate = (89 * 60) + rand() % 120;
 
                 int selectedTimezone = (*m_settings)["TIMEZONE"].as<int>();
@@ -171,6 +175,20 @@ class Rtc {
                 m_secondsUntilNextNTPUpdate = 120;
             }
         }
+    }
+
+    bool GetLocalTime(struct tm* info, uint32_t ms) {
+        uint32_t start = millis();
+        time_t now;
+        while ((millis() - start) <= ms) {
+            time(&now);
+            localtime_r(&now, info);
+            if (info->tm_year > (2016 - 1900)) {
+                return true;
+            }
+            delay(10);
+        }
+        return false;
     }
 
     struct NamedTimezone {
