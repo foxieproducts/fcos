@@ -121,7 +121,7 @@ class WebUpdate : public Display {
                 httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
                 // success!
                 version = https.getString();
-                version.trim();
+                version = version.substring(0, 4);
             } else {
                 DPRINT("ERROAR: %d  \n", httpCode);
                 // TODO: ERROAR DISPLAY of httpCode

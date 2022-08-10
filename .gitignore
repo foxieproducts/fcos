@@ -6,3 +6,6 @@
 .vscode/settings.json
 compile_commands.json
 .DS_Store
+bin/*/*
+bin/project.checksum
+!bin/*/firmware.bin
