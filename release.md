@@ -1,3 +1,7 @@
+1.01
+----
+This is a simple revision to be confirm the entire end to end process.
+
 1.00
 ----
 This is the initial release of the FCOS firmware. 
