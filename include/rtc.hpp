@@ -29,7 +29,7 @@ class Rtc {
     size_t m_uptime{0};
 
     struct tm m_timeinfo;
-    size_t m_secondsUntilNextNTPUpdate{0};
+    size_t m_secondsUntilNextNTPUpdate{10};
     ElapsedTime m_timeSinceLastNTPUpdate;
 
     static bool m_receivedInterrupt;  // used by InterruptISR()
@@ -97,7 +97,10 @@ class Rtc {
         return names;
     }
 
-    void ForceNTPUpdate() { m_secondsUntilNextNTPUpdate = 0; }
+    void ForceNTPUpdate() {
+        m_timeSinceLastNTPUpdate.Reset();
+        m_secondsUntilNextNTPUpdate = 5;
+    }
 
   private:
     void Initialize() {
@@ -153,7 +156,7 @@ class Rtc {
             m_timeSinceLastNTPUpdate.S() > m_secondsUntilNextNTPUpdate) {
             m_timeSinceLastNTPUpdate.Reset();
             if (GetLocalTime(&m_timeinfo, MAX_WAIT_FOR_NTP_MS)) {
-                m_secondsUntilNextNTPUpdate = (89 * 60) + rand() % 120;
+                m_secondsUntilNextNTPUpdate = (189 * 60) + rand() % 120;
 
                 int selectedTimezone = (*m_settings)["TIMEZONE"].as<int>();
                 auto local = m_timezones[selectedTimezone].tz.toLocal(
@@ -165,13 +168,13 @@ class Rtc {
 
                 TDPRINT(this,
                         "Got NTP time (%02d:%02d:%02d) (TZ: %s) next update in "
-                        "~90 minutes",
+                        "~3 hours    \n",
                         m_timeinfo.tm_hour, m_timeinfo.tm_min,
                         m_timeinfo.tm_sec,
                         m_timezones[selectedTimezone].name.c_str());
             } else {
-                TDPRINT(this, "Failed to get time, retry in 120s         \n");
-                m_secondsUntilNextNTPUpdate = 120;
+                TDPRINT(this, "Failed to get time, retry in ~120s         \n");
+                m_secondsUntilNextNTPUpdate = 110 + +rand() % 20;
             }
         }
     }

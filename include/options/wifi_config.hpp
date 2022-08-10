@@ -25,6 +25,7 @@ class WiFiConfig : public Numeric {
             WiFi.disconnect();
         } else {
             WiFi.begin();
+            m_rtc->ForceNTPUpdate();
         }
 
         PrepareConfigPortalParameters();
@@ -87,6 +88,7 @@ class WiFiConfig : public Numeric {
         } else if (!WiFi.isConnected() && (*m_settings)["WIFI"] == "1") {
             DPRINT("Enabling WiFi                                   \n");
             WiFi.begin();
+            m_rtc->ForceNTPUpdate();
         }
     }
 
@@ -127,12 +129,6 @@ class WiFiConfig : public Numeric {
                 m_pixels->Update();
                 ElapsedTime::Delay(75);
             }
-        });
-        m_wifiMgr.setConfigResetCallback([&]() {
-            (*m_settings)["WIFI"] = "0";
-            (*m_settings).remove("wifi_configured");
-            Activate();
-            Update();
         });
         m_wifiMgr.setSaveParamsCallback([&]() {
             // do stuff with the params (timezone)
