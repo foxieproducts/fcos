@@ -149,7 +149,7 @@ class Clock : public Display {
         const auto colorWhl = &Pixels::ColorWheel;
         const auto scale = &Pixels::ScaleBrightness;
 
-        RgbColor bottomColor = colorWhl(pos + 8);  // + 128
+        RgbColor bottomColor = colorWhl(pos - 8);  // + 128
         RgbColor topColor = colorWhl(pos - 8);     // + 64
 
         if (m_blinkerRunning) {
