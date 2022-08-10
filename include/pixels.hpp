@@ -196,7 +196,7 @@ class Pixels {
             m_neoPixels.SetPixelColor(pos, color);
         } else {
             float adjustedBrightness = m_adjustedBrightness;
-            if (!m_isPXLmode && !m_useDarkMode) {
+            if (!m_isPXLmode && (!m_useDarkMode || GetBrightness() >= 0.04f)) {
                 // this code increases the brightness of the LEDs
                 // for the 3-9 digits so that they shine brighter
                 // through the acrylics in front of them
