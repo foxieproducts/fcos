@@ -116,7 +116,7 @@ class Clock : public Display {
             (*m_settings)["ANIM"] = m_animMode + 1;
             PrepareToSaveSettings();
         } else if (evt == Button::REPEAT) {
-            m_pixels->ToggleMinBrightness();
+            m_pixels->ToggleDarkMode();
             toggled = true;
         }
     }
@@ -149,8 +149,8 @@ class Clock : public Display {
         const auto colorWhl = &Pixels::ColorWheel;
         const auto scale = &Pixels::ScaleBrightness;
 
-        RgbColor bottomColor = colorWhl(pos - 16);  // + 128
-        RgbColor topColor = colorWhl(pos - 16);     // + 64
+        RgbColor bottomColor = colorWhl(pos + 8);  // + 128
+        RgbColor topColor = colorWhl(pos - 8);     // + 64
 
         if (m_blinkerRunning) {
             if (m_blinkerTimer.Ms() >= 1950) {

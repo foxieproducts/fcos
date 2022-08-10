@@ -57,7 +57,7 @@ void setup() {
 void ShowSerialStatusMessage(std::shared_ptr<Pixels> pixels,
                              std::shared_ptr<Rtc> rtc) {
     static ElapsedTime statusDisplayTimer;
-    if (statusDisplayTimer.Ms() >= (size_t)(49 + rand() % 3)) {
+    if (statusDisplayTimer.Ms() >= 50) {
         statusDisplayTimer.Reset();
         TDPRINT(rtc, "Light Sensor: %.1f%% - Uptime: %ds   \r",
                 pixels->GetBrightness() * 100, rtc->Uptime());

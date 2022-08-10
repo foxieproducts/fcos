@@ -135,7 +135,7 @@ class Rtc {
         // this is not ideal, but some things mess up the RMT output, which
         // causes a rare flicker. this is a workaround, to cause the rest of
         // the system to wait while the LEDs are being updated.
-        ElapsedTime::Delay(5);
+        ElapsedTime::Delay(10);
 
         m_rtc.getDateTime();
         if (m_rtc.getHour() < 24) {
@@ -163,13 +163,12 @@ class Rtc {
                 SetTime(m_timeinfo.tm_hour, m_timeinfo.tm_min,
                         m_timeinfo.tm_sec);
 
-                TDPRINT(
-                    this,
-                    "Got NTP time (%02d:%02d:%02d) (TZ: %s) next update in %d "
-                    "seconds\n",
-                    m_timeinfo.tm_hour, m_timeinfo.tm_min, m_timeinfo.tm_sec,
-                    m_timezones[selectedTimezone].name.c_str(),
-                    m_secondsUntilNextNTPUpdate);
+                TDPRINT(this,
+                        "Got NTP time (%02d:%02d:%02d) (TZ: %s) next update in "
+                        "~90 minutes",
+                        m_timeinfo.tm_hour, m_timeinfo.tm_min,
+                        m_timeinfo.tm_sec,
+                        m_timezones[selectedTimezone].name.c_str());
             } else {
                 TDPRINT(this, "Failed to get time, retry in 120s         \n");
                 m_secondsUntilNextNTPUpdate = 120;
@@ -196,37 +195,61 @@ class Rtc {
         Timezone tz;
     };
     std::vector<NamedTimezone> m_timezones;
-    TimeChangeRule aEDT = {"AEDT", week_t::First, Sun, Oct, 2, 660};
-    TimeChangeRule aEST = {"AEST", week_t::First, Sun, Apr, 3, 600};
-    TimeChangeRule msk = {"MSK", week_t::Last, Sun, Mar, 1, 180};
-    TimeChangeRule CEST = {"CEST", week_t::Last, Sun, Mar, 2, 120};
-    TimeChangeRule CET = {"CET ", week_t::Last, Sun, Oct, 3, 60};
-    TimeChangeRule BST = {"BST", week_t::Last, Sun, Mar, 1, 60};
-    TimeChangeRule GMT = {"GMT", week_t::Last, Sun, Oct, 2, 0};
-    TimeChangeRule utcRule = {"UTC", week_t::Last, Sun, Mar, 1, 0};
-    TimeChangeRule usEDT = {"EDT", week_t::Second, Sun, Mar, 2, -240};
-    TimeChangeRule usEST = {"EST", First, Sun, Nov, 2, -300};
-    TimeChangeRule usCDT = {"CDT", week_t::Second, Sun, Mar, 2, -300};
-    TimeChangeRule usCST = {"CST", week_t::First, Sun, Nov, 2, -360};
-    TimeChangeRule usMDT = {"MDT", week_t::Second, Sun, Mar, 2, -360};
-    TimeChangeRule usMST = {"MST", week_t::First, Sun, Nov, 2, -420};
-    TimeChangeRule usPDT = {"PDT", week_t::Second, Sun, Mar, 2, -420};
-    TimeChangeRule usPST = {"PST", week_t::First, Sun, Nov, 2, -480};
+
     void SetupTimezones() {
-        m_timezones.push_back({"Australia Eastern Time Zone", {aEDT, aEST}});
-        m_timezones.push_back({"Moscow Standard Time", {msk}});
-        m_timezones.push_back({"Central European Time", {CEST, CET}});
-        m_timezones.push_back({"London", {BST, GMT}});
-        m_timezones.push_back({"UTC", {utcRule}});
-        m_timezones.push_back({"Eastern Daylight Time", {usEDT, usEST}});
-        m_timezones.push_back({"Central Daylight Time", {usCDT, usCST}});
-        m_timezones.push_back({"Mountain Daylight Time", {usMDT, usMST}});
-        m_timezones.push_back({"Arizona (no DST)", {usMST}});
-        m_timezones.push_back({"Pacific Daylight Time", {usPDT, usPST}});
+        TimeChangeRule nzDT = {"NZDT", week_t::First, Sun, Sep, 25, 780};
+        TimeChangeRule nzST = {"NZST", week_t::First, Sun, Apr, 3, 720};
+        TimeChangeRule aEDT = {"AEDT", week_t::First, Sun, Oct, 2, 660};
+        TimeChangeRule aEST = {"AEST", week_t::First, Sun, Apr, 3, 600};
+        TimeChangeRule aWDT = {"AWDT", week_t::First, Sun, Oct, 2, 540};
+        TimeChangeRule aWST = {"AWST", week_t::First, Sun, Apr, 3, 480};
+        TimeChangeRule msk = {"MSK", week_t::Last, Sun, Mar, 1, 180};
+        TimeChangeRule CEST = {"CEST", week_t::Last, Sun, Mar, 27, 120};
+        TimeChangeRule CET = {"CET ", week_t::Last, Sun, Oct, 30, 60};
+        TimeChangeRule BST = {"BST", week_t::Last, Sun, Mar, 1, 60};
+        TimeChangeRule GMT = {"GMT", week_t::Last, Sun, Oct, 2, 0};
+        TimeChangeRule utcRule = {"UTC", week_t::Last, Sun, Mar, 1, 0};
+        TimeChangeRule usEDT = {"EDT", week_t::Second, Sun, Mar, 12, -240};
+        TimeChangeRule usEST = {"EST", First, Sun, Nov, 6, -300};
+        TimeChangeRule usCDT = {"CDT", week_t::Second, Sun, Mar, 12, -300};
+        TimeChangeRule usCST = {"CST", week_t::First, Sun, Nov, 6, -360};
+        TimeChangeRule usMDT = {"MDT", week_t::Second, Sun, Mar, 12, -360};
+        TimeChangeRule usMST = {"MST", week_t::First, Sun, Nov, 6, -420};
+        TimeChangeRule usPDT = {"PDT", week_t::Second, Sun, Mar, 12, -420};
+        TimeChangeRule usPST = {"PST", week_t::First, Sun, Nov, 6, -480};
+        TimeChangeRule usAKDT = {"AKDT", week_t::Second, Sun, Mar, 12, -480};
+        TimeChangeRule usAKST = {"AKST", week_t::First, Sun, Nov, 6, -540};
+        TimeChangeRule usHST = {"HST", week_t::First, Sun, Nov, 6, -600};
+
+        m_timezones.push_back(
+            {"UTC +12 New Zealand Daylight Time (DST)", {nzST, nzDT}});
+        m_timezones.push_back(
+            {"UTC +10 Australia Eastern Time (DST)", {aEDT, aEST}});
+        m_timezones.push_back(
+            {"UTC +8 Australia Western Time (DST)", {aWDT, aWST}});
+        m_timezones.push_back({"UTC +3 Moscow Standard Time (no DST)", {msk}});
+        m_timezones.push_back(
+            {"UTC +1 Central European Time (DST)", {CEST, CET}});
+        m_timezones.push_back({"UTC 0 London (DST)", {BST, GMT}});
+        m_timezones.push_back({"UTC 0", {utcRule}});
+        m_timezones.push_back(
+            {"UTC -4 Eastern Daylight Time (DST)", {usEDT, usEST}});
+        m_timezones.push_back(
+            {"UTC -5 Central Daylight Time (DST)", {usCDT, usCST}});
+        m_timezones.push_back(
+            {"UTC -6 Mountain Daylight Time (DST)", {usMDT, usMST}});
+        m_timezones.push_back({"UTC -6 Arizona (no DST)", {usMST}});
+        m_timezones.push_back(
+            {"UTC -7 Pacific Daylight Time (DST)", {usPDT, usPST}});
+        m_timezones.push_back(
+            {"UTC -8 Alaska Daylight Time (DST)", {usAKDT, usAKST}});
+        m_timezones.push_back(
+            {"UTC -10 Hawaii Standard Time (no DST)", {usHST}});
 
         if (!(*m_settings).containsKey("TIMEZONE")) {
             (*m_settings)["TIMEZONE"] = 4;  // UTC
         }
+        configTime(0, 0, "pool.ntp.org", "time.nist.gov");
     }
 
     void AttachInterrupt() {

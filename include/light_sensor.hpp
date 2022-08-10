@@ -73,6 +73,7 @@ class LightSensor {
 
     float GetMultipleAnalogSamples(const size_t numSamples = 16) {
         float avg = 0.0f;
+        delay(1);  // does reading the current analog value fuck up the RMT?!
         for (size_t i = 0; i < numSamples; ++i) {
             avg += GetCurrentAnalogValue();
         }

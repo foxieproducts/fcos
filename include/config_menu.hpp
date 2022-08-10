@@ -33,7 +33,7 @@ class ConfigMenu : public Display {
     std::vector<Item> m_items;
     size_t m_selected{DEFAULT_SELECTION};
     bool m_subDisplayActive{false};
-    bool m_wasMinBrightnessEnabled{false};
+    bool m_wasDarkModeEnabled{false};
 
     ElapsedTime m_timeSinceAnimation;
 
@@ -46,9 +46,9 @@ class ConfigMenu : public Display {
 
     virtual void Activate() override {
         m_subDisplayActive = false;
-        if (m_pixels->IsMinBrightnessEnabled()) {
-            m_pixels->DisableMinBrightness();
-            m_wasMinBrightnessEnabled = true;
+        if (m_pixels->IsDarkModeEnabled()) {
+            m_pixels->DisableDarkMode();
+            m_wasDarkModeEnabled = true;
         }
     }
 
@@ -85,9 +85,9 @@ class ConfigMenu : public Display {
 
     void Hide() {
         m_settings->Save();
-        if (m_wasMinBrightnessEnabled) {
-            m_pixels->EnableMinBrightness();
-            m_wasMinBrightnessEnabled = false;
+        if (m_wasDarkModeEnabled) {
+            m_pixels->EnableDarkMode();
+            m_wasDarkModeEnabled = false;
         }
     }
 

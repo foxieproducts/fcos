@@ -25,7 +25,7 @@ class InfoDisplay : public Display {
         char str[10];
         switch (m_type) {
             case INFO_VERSION:
-                m_pixels->DrawText(0, " 0.94", PURPLE);
+                m_pixels->DrawText(0, " " + String(FW_VERSION), PURPLE);
                 break;
 
             case INFO_LIGHT_SENSOR: {

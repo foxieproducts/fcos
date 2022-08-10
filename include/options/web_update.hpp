@@ -11,6 +11,7 @@
 #define httpUpdate ESPhttpUpdate
 #endif
 #include <display.hpp>
+#include <elapsed_time.hpp>
 
 class WebUpdate : public Display {
     enum State_e {
@@ -24,6 +25,7 @@ class WebUpdate : public Display {
     size_t m_state{CHECKING};
     WiFiClientSecure m_client;
     String m_webVersion;
+    ElapsedTime m_timeSinceAnimation;
 
   public:
     WebUpdate() : Display() { m_name = "INFO"; }
@@ -34,13 +36,27 @@ class WebUpdate : public Display {
         m_pixels->Clear();
         switch (m_state) {
             case CHECKING:
+                m_pixels->Clear();
+                m_pixels->Set(LED_OPT_UPDT, YELLOW);
+                m_pixels->DrawChar(8, ':', YELLOW);
+                m_pixels->Update(true);
                 m_webVersion = GetVersionFromServer();
                 m_state = ASKING;
+                m_timeSinceAnimation.Reset();
                 break;
-            case ASKING:
-                m_pixels->DrawText(20, m_webVersion, YELLOW);
-                m_pixels->Set(LED_JOY_UP, GREEN);
+
+            case ASKING: {
+                m_pixels->DrawText(20, m_webVersion, ORANGE);
+                m_pixels->Set(LED_OPT_UPDT, BLUE);
+                static bool isOn{true};
+                m_pixels->Set(LED_JOY_UP, isOn ? GREEN : BLACK);
+                if (m_timeSinceAnimation.Ms() > 500) {
+                    m_timeSinceAnimation.Reset();
+                    isOn = !isOn;
+                }
                 break;
+            }
+
             case UPDATING:
                 // progress is shown by HTTPUpdate
                 httpUpdate.onProgress([&](int cur, int total) {
@@ -65,6 +81,12 @@ class WebUpdate : public Display {
                 });
                 httpUpdate.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
                 httpUpdate.rebootOnUpdate(true);
+
+                m_pixels->Clear();
+                m_pixels->Set(LED_OPT_UPDT, BLUE);
+                m_pixels->DrawText(62, "0", PURPLE);
+                m_pixels->Update(true);
+
                 m_client.setInsecure();
                 httpUpdate.update(m_client,
                                   "https://" + String(FW_DOWNLOAD_ADDRESS));
@@ -90,11 +112,6 @@ class WebUpdate : public Display {
         String version;
         HTTPClient https;
         https.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
-
-        m_pixels->Clear();
-        // TODO: Show "connecting" status on LEDs (animation?)
-        m_pixels->Update(true);
-
         m_client.setInsecure();
         if (https.begin(m_client, "https://" + String(FW_VERSION_ADDR))) {
             const int httpCode = https.GET();
@@ -104,6 +121,7 @@ class WebUpdate : public Display {
                 httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
                 // success!
                 version = https.getString();
+                version.trim();
             } else {
                 DPRINT("ERROAR: %d  \n", httpCode);
                 // TODO: ERROAR DISPLAY of httpCode

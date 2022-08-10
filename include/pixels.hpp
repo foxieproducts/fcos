@@ -106,7 +106,7 @@ class Pixels {
     ElapsedTime m_sinceLastLightSensorUpdate;
 
     bool m_isPXLmode{false};
-    bool m_useMinBrightness{false};
+    bool m_useDarkMode{false};
 
   public:
     Pixels(std::shared_ptr<Settings> settings)
@@ -195,7 +195,30 @@ class Pixels {
         if (skipBrightnessScaling || color == BLACK) {
             m_neoPixels.SetPixelColor(pos, color);
         } else {
-            RgbColor scaledColor = ScaleBrightness(color, m_adjustedBrightness);
+            float adjustedBrightness = m_adjustedBrightness;
+            if (!m_isPXLmode && !m_useDarkMode) {
+                // this code increases the brightness of the LEDs
+                // for the 3-9 digits so that they shine brighter
+                // through the acrylics in front of them
+                float multiplier = 0.0004f;
+                if (GetBrightness() >= 0.04f) {
+                    multiplier += GetBrightness() * 0.1f;
+                }
+                if (pos < 14) {  // digit 1
+                    adjustedBrightness += (14 - pos) * multiplier;
+                } else if (pos >= 20 && pos < 34) {  // digit 2
+                    adjustedBrightness += (34 - pos) * multiplier;
+                } else if (pos >= 42 && pos < 56) {  // digit 3
+                    adjustedBrightness += (56 - pos) * multiplier;
+                } else if (pos >= 62 && pos < 76) {  // digit 4
+                    adjustedBrightness += (76 - pos) * multiplier;
+                }
+                if (adjustedBrightness > 1.0f) {
+                    m_neoPixels.SetPixelColor(pos, color);
+                    return;
+                }
+            }
+            RgbColor scaledColor = ScaleBrightness(color, adjustedBrightness);
             m_neoPixels.SetPixelColor(pos, scaledColor);
         }
     }
@@ -281,7 +304,7 @@ class Pixels {
                 // in edge-lit mode in the darkness, only use 1 LED per
                 // digit
                 if (!m_isPXLmode && m_currentBrightness == 0.0f &&
-                    m_useMinBrightness) {
+                    m_useDarkMode) {
                     break;
                 }
             }
@@ -305,20 +328,20 @@ class Pixels {
         return color.LinearBlend(BLACK, color, brightness);
     }
 
-    void ToggleMinBrightness() {
-        m_useMinBrightness = !m_useMinBrightness;
+    void ToggleDarkMode() {
+        m_useDarkMode = !m_useDarkMode;
     }
 
-    void EnableMinBrightness() {
-        m_useMinBrightness = true;
+    void EnableDarkMode() {
+        m_useDarkMode = true;
     }
 
-    void DisableMinBrightness() {
-        m_useMinBrightness = false;
+    void DisableDarkMode() {
+        m_useDarkMode = false;
     }
 
-    bool IsMinBrightnessEnabled() {
-        return m_useMinBrightness;
+    bool IsDarkModeEnabled() {
+        return m_useDarkMode;
     }
 
     void DrawColorWheelBetween(uint8_t wheelPos,
@@ -489,7 +512,7 @@ class Pixels {
 
         // TODO: Apply MAXB
         int configuredMinBrightness = (*m_settings)["MINB"].as<int>();
-        if (m_useMinBrightness) {
+        if (m_useDarkMode) {
             configuredMinBrightness = 0;
         }
         // const int maxBrightness =

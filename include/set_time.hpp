@@ -143,7 +143,13 @@ class SetTime : public Display {
     }
 
     void DrawTime() {
-        RgbColor color = m_rtc->Millis() < 500 ? PURPLE : DARK_PURPLE;
+        RgbColor color = PURPLE;
+        if (m_pixels->GetBrightness() == 0 &&
+            ((*m_settings)["MINB"] == "0" || m_pixels->IsDarkModeEnabled())) {
+            color = BLUE;
+        } else if (m_rtc->Millis() < 500) {
+            color = DARK_PURPLE;
+        }
 
         char text[10];
         if (m_mode == SET_SECOND) {
