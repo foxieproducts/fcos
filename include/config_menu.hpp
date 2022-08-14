@@ -144,11 +144,17 @@ class ConfigMenu : public Display {
 
   private:
     void AddMenuItems() {
-        // Add({nullptr /* CUSTOM - some kind of Display */, LED_UNUSED, ORANGE,
-        //      [](Item& item) {
-        //          item.color = item.color == ORANGE ? CYAN : ORANGE;
-        //          item.animFreq = 500;
-        //      }});
+        Add({std::make_shared<Numeric>("LS_HW_MAX", 15, 50), LED_UNUSED, GRAY,
+             [](Item& item) {
+                 item.color = item.color == LIGHT_GRAY ? WHITE : LIGHT_GRAY;
+                 item.animFreq = 500;
+             }});
+
+        Add({std::make_shared<Numeric>("LS_HW_MIN", 0, 15), LED_UNUSED, GRAY,
+             [](Item& item) {
+                 item.color = item.color == LIGHT_GRAY ? WHITE : LIGHT_GRAY;
+                 item.animFreq = 500;
+             }});
 
         Add({std::make_shared<Numeric>("ANIM", 1, ANIM_TOTAL), LED_OPT_ANIM,
              WHITE, [](Item& item) {

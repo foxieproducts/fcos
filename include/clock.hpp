@@ -49,8 +49,12 @@ class Clock : public Display {
 #endif
         }
         DrawClockDigits(m_currentColor);
-        DrawSeparator(8,
-                      m_currentColor);  // TODO: This 8 is outa time
+        if ((m_pixels->GetBrightness() >= 0.05f &&
+             (*m_settings)["PXL"] != "1") ||
+            (*m_settings)["MINB"] != "0") {
+            DrawSeparator(8, m_currentColor);
+        }
+
         CheckIfWaitingToSaveSettings();
     }
 

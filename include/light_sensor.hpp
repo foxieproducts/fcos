@@ -9,17 +9,18 @@ class LightSensor {
   public:
     enum {
         CACHE_SIZE = 25,
-
-        HW_SENSOR_MIN = 0,
-        HW_SENSOR_MAX = 20,  // past this is "really bright"
-        HW_SENSOR_RANGE = HW_SENSOR_MAX - HW_SENSOR_MIN,
-
+        HW_MIN = 0,
+        HW_MAX = 20,
         FILTER_VAL_MIN = 0,
         FILTER_VAL_MAX = 20,
         FILTER_RANGE = FILTER_VAL_MAX - FILTER_VAL_MIN,
     };
     const float ALLOWED_JITTER = FILTER_VAL_MAX / 100.0f;
     const float ZERO_THRESHOLD = 0.0f + ALLOWED_JITTER;
+
+    // these values must be adjusted to match the light sensor
+    size_t m_hwMin{HW_MIN};
+    size_t m_hwMax{HW_MAX};
 
   private:
     using AnalogReadFunc_t = std::function<uint16_t(const uint8_t pin)>;
@@ -39,6 +40,11 @@ class LightSensor {
             m_cachePos = 0;
         }
     }
+
+    void SetHwMin(const size_t hwMin) { m_hwMin = hwMin; }
+    void SetHwMax(const size_t hwMax) { m_hwMax = hwMax; }
+    size_t GetHwMin() const { return m_hwMin; }
+    size_t GetHwMax() const { return m_hwMax; }
 
     float GetAverageValue() const { return m_average; }
     float GetScaled(const size_t places = 3) {
@@ -73,7 +79,6 @@ class LightSensor {
 
     float GetMultipleAnalogSamples(const size_t numSamples = 16) {
         float avg = 0.0f;
-        delay(1);  // does reading the current analog value fuck up the RMT?!
         for (size_t i = 0; i < numSamples; ++i) {
             avg += GetCurrentAnalogValue();
         }
@@ -87,10 +92,11 @@ class LightSensor {
         return avg;
     }
 
-    int16_t GetCurrentAnalogValue() {
-        uint16_t val = m_analogReadFunc(PIN_LIGHT_SENSOR);
+    size_t GetCurrentAnalogValue() {
+        size_t val = m_analogReadFunc(PIN_LIGHT_SENSOR);
         // scale the hw value to the range of the filter values
-        return (((val - HW_SENSOR_MIN) * FILTER_RANGE) / HW_SENSOR_RANGE) +
+        val = std::min(std::max(m_hwMin, val), m_hwMax);
+        return (((val - m_hwMin) * FILTER_RANGE) / (m_hwMax - m_hwMin)) +
                FILTER_VAL_MIN;
     }
 

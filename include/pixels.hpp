@@ -125,6 +125,16 @@ class Pixels {
         }
         m_isPXLmode = ((*m_settings)["PXL"] == "1");
 
+        if (!(*settings).containsKey("LS_HW_MIN")) {
+            (*settings)["LS_HW_MIN"] = m_lightSensor.GetHwMin();
+        }
+        if (!(*settings).containsKey("LS_HW_MAX")) {
+            (*settings)["LS_HW_MAX"] = m_lightSensor.GetHwMax();
+        }
+        m_lightSensor.SetHwMin((*m_settings)["LS_HW_MIN"].as<int>());
+        m_lightSensor.SetHwMax((*m_settings)["LS_HW_MAX"].as<int>());
+        m_lightSensor.ResetToCurrentSensorValue();
+
         SetLEDBrightnessMultiplierFromSensor();
     }
 
@@ -137,11 +147,10 @@ class Pixels {
 
         if (m_sinceLastShow.Ms() >= 1000 / FRAMES_PER_SECOND || force) {
             m_sinceLastShow.Reset();
+            WaitUntilCanShow();
             Show();
+            WaitUntilCanShow();
             m_isPXLmode = ((*m_settings)["PXL"] == "1");
-            do {
-                delay(1);
-            } while (!CanShow());
             return true;
         }
         return false;
@@ -151,8 +160,10 @@ class Pixels {
         m_neoPixels.Show();
     }
 
-    bool CanShow() {
-        return m_neoPixels.CanShow();
+    void WaitUntilCanShow() {
+        while (!m_neoPixels.CanShow()) {
+            delay(1);
+        }
     }
 
     void Clear(const RgbColor color = BLACK,
@@ -213,9 +224,9 @@ class Pixels {
                 } else if (pos >= 62 && pos < 76) {  // digit 4
                     adjustedBrightness += (76 - pos) * multiplier;
                 }
-                if (adjustedBrightness > 1.0f) {
-                    m_neoPixels.SetPixelColor(pos, color);
-                    return;
+
+                if (adjustedBrightness > 0.9f) {
+                    adjustedBrightness = 0.9f;
                 }
             }
             RgbColor scaledColor = ScaleBrightness(color, adjustedBrightness);
@@ -507,16 +518,17 @@ class Pixels {
         }
     }
     void SetLEDBrightnessMultiplierFromSensor() {
+        // TEMPORARY:
+        m_lightSensor.SetHwMin((*m_settings)["LS_HW_MIN"].as<int>());
+        m_lightSensor.SetHwMax((*m_settings)["LS_HW_MAX"].as<int>());
+
         m_lightSensor.Update();
         m_currentBrightness = m_lightSensor.GetScaled();
 
-        // TODO: Apply MAXB
         int configuredMinBrightness = (*m_settings)["MINB"].as<int>();
         if (m_useDarkMode) {
             configuredMinBrightness = 0;
         }
-        // const int maxBrightness =
-        // (*m_settings)["MAXB"].as<int>();
 
         const float pixelMinBrightness = 0.0045f;
         m_adjustedBrightness = pixelMinBrightness +
