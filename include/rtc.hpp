@@ -173,8 +173,8 @@ class Rtc {
                         m_timeinfo.tm_sec,
                         m_timezones[selectedTimezone].name.c_str());
             } else {
-                TDPRINT(this, "Failed to get time, retry in ~120s         \n");
-                m_secondsUntilNextNTPUpdate = 110 + +rand() % 20;
+                TDPRINT(this, "Failed to get time, retry in ~10s         \n");
+                m_secondsUntilNextNTPUpdate = 8 + +rand() % 4;
             }
         }
     }
