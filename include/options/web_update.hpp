@@ -41,8 +41,16 @@ class WebUpdate : public Display {
                 m_pixels->DrawChar(8, ':', YELLOW);
                 m_pixels->Update(true);
                 m_webVersion = GetVersionFromServer();
-                m_state = ASKING;
-                m_timeSinceAnimation.Reset();
+                if (m_webVersion.length() > 0) {
+                    m_state = ASKING;
+                    m_timeSinceAnimation.Reset();
+                } else {
+                    m_pixels->Set(LED_OPT_UPDT, RED);
+                    m_pixels->DrawChar(8, ':', RED);
+                    m_pixels->Update(true);
+                    ElapsedTime::Delay(1000);
+                    m_done = true;
+                }
                 break;
 
             case ASKING: {

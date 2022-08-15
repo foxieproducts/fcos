@@ -120,7 +120,12 @@ class DisplayManager {
                                   GetTimeSinceButtonPress() >= TIMEOUT_MS &&
                                   m_activeDisplay != m_defaultDisplay)) {
                 cur->Timeout();
-                ActivateDisplay(m_defaultDisplay);
+                cur->m_done = false;
+                if (m_isTempDisplay) {
+                    ActivateDisplay(m_lastActiveDisplay);
+                } else {
+                    ActivateDisplay(m_defaultDisplay);
+                }
             }
 
             m_pixels->Update(m_isFirstUpdate);
