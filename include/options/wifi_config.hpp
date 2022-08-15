@@ -126,7 +126,7 @@ class WiFiConfig : public Numeric {
                 m_pixels->Set(41, isLedOn ? GREEN : BLACK);
                 m_pixels->Set(40, isLedOn ? GREEN : BLACK);
                 isLedOn = !isLedOn;
-                m_pixels->Update();
+                m_pixels->Update(true);
                 ElapsedTime::Delay(75);
             }
         });

@@ -79,6 +79,7 @@ class DisplayManager {
     bool m_isFirstUpdate{true};
 
     ElapsedTime m_timeSinceButtonPress;
+    ElapsedTime m_sinceLastUpdate;
 
   public:
     DisplayManager(std::shared_ptr<Pixels> pixels,
@@ -102,7 +103,9 @@ class DisplayManager {
     }
 
     void Update() {
-        if (m_pixels->Update() || m_isFirstUpdate) {
+        if (m_sinceLastUpdate.Ms() >= 1000 / FRAMES_PER_SECOND ||
+            m_isFirstUpdate) {
+            m_sinceLastUpdate.Reset();
             if (m_isTempDisplay) {
                 // Update the "parent" display of the temp display
                 // this is used by ConfigMenu to allow it to composite the
@@ -120,10 +123,8 @@ class DisplayManager {
                 ActivateDisplay(m_defaultDisplay);
             }
 
-            if (m_isFirstUpdate) {
-                m_pixels->Update(true);
-                m_isFirstUpdate = false;
-            }
+            m_pixels->Update(m_isFirstUpdate);
+            m_isFirstUpdate = false;
         }
     }
 

@@ -135,13 +135,8 @@ class Rtc {
     void GetTimeFromRTC() {
         unsigned long msAtInterrupt = millis();
 
-        // this is not ideal, but some things mess up the RMT output, which
-        // causes a rare flicker. this is a workaround, to cause the rest of
-        // the system to wait while the LEDs are being updated.
-        ElapsedTime::Delay(10);
-
         m_rtc.getDateTime();
-        if (m_rtc.getHour() < 24) {
+        if (m_rtc.getHour() < 24) {  // the RTC reports 33 initially
             m_hour = m_rtc.getHour();
             m_minute = m_rtc.getMinute();
             if (m_second != m_rtc.getSecond()) {

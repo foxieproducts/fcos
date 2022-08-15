@@ -72,8 +72,8 @@ enum PixelsConfig_e {
     FRAMES_PER_SECOND = 30,
     LIGHT_SENSOR_UPDATE_MS = 33,
 
-    MIN_DISPLAY_BRIGHTNESS_DEFAULT = 0,
-    MAX_DISPLAY_BRIGHTNESS_DEFAULT = 9,
+    MIN_DISPLAY_BRIGHTNESS_DEFAULT = 1,
+    MAX_DISPLAY_BRIGHTNESS = 9,
 };
 
 enum LEDOptionPositions_e {
@@ -93,7 +93,7 @@ enum LEDOptionPositions_e {
 class Pixels {
   private:
 #if FCOS_ESP32_C3
-    NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> m_neoPixels;
+    NeoPixelBus<NeoGrbFeature, NeoTx1812Method> m_neoPixels;
 #elif FCOS_ESP8266
     NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod> m_neoPixels;
 #endif
@@ -120,9 +120,7 @@ class Pixels {
         if (!(*settings).containsKey("MINB")) {
             (*settings)["MINB"] = String(MIN_DISPLAY_BRIGHTNESS_DEFAULT);
         }
-        if (!(*settings).containsKey("MAXB")) {
-            (*settings)["MAXB"] = String(MAX_DISPLAY_BRIGHTNESS_DEFAULT);
-        }
+
         m_isPXLmode = ((*m_settings)["PXL"] == "1");
 
         if (!(*settings).containsKey("LS_HW_MIN")) {
@@ -147,9 +145,7 @@ class Pixels {
 
         if (m_sinceLastShow.Ms() >= 1000 / FRAMES_PER_SECOND || force) {
             m_sinceLastShow.Reset();
-            WaitUntilCanShow();
             Show();
-            WaitUntilCanShow();
             m_isPXLmode = ((*m_settings)["PXL"] == "1");
             return true;
         }
@@ -158,11 +154,11 @@ class Pixels {
 
     void Show() {
         m_neoPixels.Show();
-    }
 
-    void WaitUntilCanShow() {
         while (!m_neoPixels.CanShow()) {
-            delay(1);
+            // make sure that no other code (including espressif code!)
+            // messes up the data transmission to the LEDs while the
+            // RMT peripheral is running (~3.1ms per update)
         }
     }
 
@@ -182,7 +178,7 @@ class Pixels {
     // fading transitions everywhere with almost no coding required and doesn't
     // use enough CPU to be a problem.
     void Darken(const size_t numTimes = 1,
-                const float amount = 0.77f,
+                const float amount = 0.85f,
                 const size_t delayMs = 15) {
         const size_t numToClear = TOTAL_LEDS_DISPLAY + OPTION_LEDS + ROUND_LEDS;
         for (size_t t = 0; t < numTimes; ++t) {
@@ -196,6 +192,7 @@ class Pixels {
 
             if (numTimes > 1) {
                 ElapsedTime::Delay(delayMs);
+                Show();
             }
         }
     }
