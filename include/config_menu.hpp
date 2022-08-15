@@ -33,7 +33,6 @@ class ConfigMenu : public Display {
     std::vector<Item> m_items;
     size_t m_selected{DEFAULT_SELECTION};
     bool m_subDisplayActive{false};
-    bool m_wasDarkModeEnabled{false};
 
     ElapsedTime m_timeSinceAnimation;
 
@@ -44,13 +43,7 @@ class ConfigMenu : public Display {
 
     virtual void Initialize() { AddMenuItems(); }
 
-    virtual void Activate() override {
-        m_subDisplayActive = false;
-        if (m_pixels->IsDarkModeEnabled()) {
-            m_pixels->DisableDarkMode();
-            m_wasDarkModeEnabled = true;
-        }
-    }
+    virtual void Activate() override { m_subDisplayActive = false; }
 
     virtual void Update() override {
         m_pixels->Darken();
@@ -83,13 +76,7 @@ class ConfigMenu : public Display {
         }
     }
 
-    void Hide() {
-        m_settings->Save();
-        if (m_wasDarkModeEnabled) {
-            m_pixels->EnableDarkMode();
-            m_wasDarkModeEnabled = false;
-        }
-    }
+    void Hide() { m_settings->Save(); }
 
     virtual void Up(const Button::Event_e evt) override {
         if (evt == Button::PRESS || evt == Button::REPEAT) {
@@ -112,6 +99,7 @@ class ConfigMenu : public Display {
     // holding left exits config menu
     virtual bool Left(const Button::Event_e evt) override {
         if (evt == Button::REPEAT) {
+            m_settings->Save();
             return false;
         }
         return true;
@@ -144,7 +132,7 @@ class ConfigMenu : public Display {
 
   private:
     void AddMenuItems() {
-        Add({std::make_shared<Numeric>("LS_HW_MAX", 15, 50), LED_UNUSED, GRAY,
+        Add({std::make_shared<Numeric>("LS_HW_MAX", 15, 70), LED_UNUSED, GRAY,
              [](Item& item) {
                  item.color = item.color == LIGHT_GRAY ? WHITE : LIGHT_GRAY;
                  item.animFreq = 500;
@@ -164,8 +152,8 @@ class ConfigMenu : public Display {
                  item.color = Pixels::ColorWheel(wheelPos++);
              }});
 
-        Add({std::make_shared<Numeric>("MINB", 0, 9), LED_OPT_MINB, GRAY,
-             [](Item& item) {
+        Add({std::make_shared<Numeric>("MINB", 0, MAX_DISPLAY_BRIGHTNESS),
+             LED_OPT_MINB, GRAY, [](Item& item) {
                  item.color = item.color == LIGHT_GRAY ? WHITE : LIGHT_GRAY;
                  item.animFreq = 500;
              }});
