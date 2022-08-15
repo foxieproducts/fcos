@@ -1,3 +1,7 @@
+1.02
+----
+- Improve blinker and dark mode behavior
+
 1.01
 ----
 This is a simple revision to be confirm the entire end to end update process.
