@@ -157,15 +157,17 @@ class Clock : public Display {
         RgbColor topColor = colorWhl(pos - 8);     // + 64
 
         if (m_blinkerRunning) {
-            if (m_blinkerTimer.Ms() >= 1950) {
-                m_blinkerRunning = false;
-            }
-            const float progress = m_blinkerTimer.Ms() / 2000.0f;
+            const float progress = m_blinkerTimer.Ms() / 1900.0f;
             float brightness = progress < 0.5f ? progress : 1.0f - progress;
             bottomColor = scale(bottomColor, 0.55f - brightness);
             topColor = scale(topColor, 0.05f + brightness);
+
+            if (m_blinkerTimer.Ms() >= 1900 ||
+                (!(m_rtc->Second() % 2) && m_rtc->Millis() > 900)) {
+                m_blinkerRunning = false;
+            }
         } else {
-            bottomColor = scale(bottomColor, 0.6f);
+            bottomColor = scale(bottomColor, 0.55f);
             topColor = scale(topColor, 0.05f);
         }
 
@@ -188,11 +190,6 @@ class Clock : public Display {
             // wait until 2 seconds after changing the color to save
             // settings, since the user can quickly change either one and we
             // want to save flash write cycles
-
-            // this is not ideal, but some things mess up the RMT output, which
-            // causes a rare flicker. this is a workaround, to cause the rest of
-            // the system to wait while the LEDs are being updated.
-            ElapsedTime::Delay(5);
 
             ElapsedTime saveTime;
             m_settings->Save();
