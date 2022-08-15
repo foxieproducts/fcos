@@ -143,40 +143,40 @@ class SetTime : public Display {
     }
 
     void DrawTime() {
-        RgbColor color = PURPLE;
-        if (m_pixels->GetBrightness() == 0 &&
+        RgbColor selectedCol = PURPLE, unselectedCol = LIGHT_GRAY;
+        if (m_pixels->GetBrightness() <= 0.01f &&
             ((*m_settings)["MINB"] == "0" || m_pixels->IsDarkModeEnabled())) {
-            color = BLUE;
+            selectedCol = BLUE;
         } else if (m_rtc->Millis() < 500) {
-            color = DARK_PURPLE;
+            selectedCol = DARK_PURPLE;
         }
 
         char text[10];
         if (m_mode == SET_SECOND) {
             sprintf(text, "%02d", m_minute);
-            m_pixels->DrawText(0, text,
-                               m_mode == SET_MINUTE ? color : LIGHT_GRAY);
+            m_pixels->DrawText(
+                0, text, m_mode == SET_MINUTE ? selectedCol : unselectedCol);
 
             sprintf(text, "%02d", m_second);
-            m_pixels->DrawText(42, text,
-                               m_mode == SET_SECOND ? color : LIGHT_GRAY);
+            m_pixels->DrawText(
+                42, text, m_mode == SET_SECOND ? selectedCol : unselectedCol);
         } else {
             if ((*m_settings)["24HR"] == "24") {
                 sprintf(text, "%02d", m_hour);
             } else {
                 sprintf(text, "%2d", m_rtc->Conv24to12(m_hour));
             }
-            m_pixels->DrawText(0, text,
-                               m_mode == SET_HOUR ? color : LIGHT_GRAY);
+            m_pixels->DrawText(
+                0, text, m_mode == SET_HOUR ? selectedCol : unselectedCol);
 
             sprintf(text, "%02d", m_minute);
-            m_pixels->DrawText(42, text,
-                               m_mode == SET_MINUTE ? color : LIGHT_GRAY);
+            m_pixels->DrawText(
+                42, text, m_mode == SET_MINUTE ? selectedCol : unselectedCol);
         }
 
         m_pixels->DrawChar(8, ':', DARK_PURPLE);
 
-        DrawAnalog(color);
+        DrawAnalog(selectedCol);
     }
 
     void DrawAnalog(const RgbColor color) {
