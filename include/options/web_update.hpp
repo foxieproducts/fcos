@@ -39,7 +39,7 @@ class WebUpdate : public Display {
                 m_pixels->Clear();
                 m_pixels->Set(LED_OPT_UPDT, YELLOW);
                 m_pixels->DrawChar(8, ':', YELLOW);
-                m_pixels->Update(true);
+                m_pixels->Update();
                 m_webVersion = GetVersionFromServer();
                 if (m_webVersion.length() > 0) {
                     m_state = ASKING;
@@ -47,7 +47,7 @@ class WebUpdate : public Display {
                 } else {
                     m_pixels->Set(LED_OPT_UPDT, RED);
                     m_pixels->DrawChar(8, ':', RED);
-                    m_pixels->Update(true);
+                    m_pixels->Update();
                     ElapsedTime::Delay(1000);
                     m_done = true;
                 }
@@ -77,14 +77,14 @@ class WebUpdate : public Display {
                                        percentComplete < 100 ? PURPLE : GREEN);
                     m_pixels->Set(LED_OPT_UPDT,
                                   percentComplete < 100 ? PURPLE : GREEN);
-                    m_pixels->Update(true);
+                    m_pixels->Update();
                 });
                 httpUpdate.onError([&](int error) {
                     char str[10];
                     sprintf(str, "%03d", error);
                     m_pixels->Clear();
                     m_pixels->DrawText(20, str, RED);
-                    m_pixels->Update(true);
+                    m_pixels->Update();
                     ElapsedTime::Delay(5000);
                 });
                 httpUpdate.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
@@ -93,7 +93,7 @@ class WebUpdate : public Display {
                 m_pixels->Clear();
                 m_pixels->Set(LED_OPT_UPDT, BLUE);
                 m_pixels->DrawText(62, "0", PURPLE);
-                m_pixels->Update(true);
+                m_pixels->Update();
 
                 m_client.setInsecure();
                 httpUpdate.update(m_client,

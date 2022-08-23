@@ -15,8 +15,8 @@ class LightSensor {
         FILTER_VAL_MAX = 20,
         FILTER_RANGE = FILTER_VAL_MAX - FILTER_VAL_MIN,
     };
-    const float ALLOWED_JITTER = FILTER_VAL_MAX / 100.0f;
-    const float ZERO_THRESHOLD = 0.0f + ALLOWED_JITTER;
+    const float ALLOWED_JITTER = FILTER_VAL_MAX * 0.01f;
+    const float ZERO_THRESHOLD = FILTER_VAL_MAX * 0.01f;
 
     // these values must be adjusted to match the light sensor
     size_t m_hwMin{HW_MIN};
@@ -65,11 +65,10 @@ class LightSensor {
             m_cache.size();
         const float delta = std::abs(m_average - avg);
 
-        if (sample >= ALLOWED_JITTER &&
-            sample <= (FILTER_VAL_MAX - ALLOWED_JITTER) &&
-            delta <= ALLOWED_JITTER) {
+        if (sample > 0.0f && delta <= ALLOWED_JITTER &&
+            sample < FILTER_VAL_MAX - ALLOWED_JITTER) {
             sample = avg;
-            // m_average doesn't change when inside this window
+            //  m_average doesn't change when inside this window
         } else {
             m_average = avg;
         }

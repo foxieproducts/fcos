@@ -64,7 +64,7 @@ class WiFiConfig : public Numeric {
             }
             m_pixels->DrawChar(20, '3', GREEN);
             m_pixels->DrawChar(8, ':', DARK_PURPLE);
-            m_pixels->Update(true);
+            m_pixels->Update();
             m_wifiMgr.stopConfigPortal();
         }
     }
@@ -126,7 +126,7 @@ class WiFiConfig : public Numeric {
                 m_pixels->Set(41, isLedOn ? GREEN : BLACK);
                 m_pixels->Set(40, isLedOn ? GREEN : BLACK);
                 isLedOn = !isLedOn;
-                m_pixels->Update(true);
+                m_pixels->Update();
                 ElapsedTime::Delay(75);
             }
         });

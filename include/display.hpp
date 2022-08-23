@@ -128,7 +128,7 @@ class DisplayManager {
                 }
             }
 
-            m_pixels->Update(m_isFirstUpdate);
+            m_pixels->Update();
             m_isFirstUpdate = false;
         }
     }

@@ -1,3 +1,7 @@
+1.03
+----
+- Reduce rare green flicker
+
 1.02
 ----
 - Improve blinker and dark mode behavior

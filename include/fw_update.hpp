@@ -45,7 +45,7 @@ class FwUpdate {
             sprintf(str, "%3d", percentComplete);
             m_pixels->DrawText(20, str, percentComplete < 100 ? PURPLE : GREEN);
             m_pixels->Set(LED_OPT_UPDT, percentComplete < 100 ? PURPLE : GREEN);
-            m_pixels->Update(true);
+            m_pixels->Update();
         });
         ArduinoOTA.onError([&](ota_error_t error) {
             // SENS-OARS detected an ERR-OAR, show user
@@ -53,7 +53,7 @@ class FwUpdate {
             sprintf(str, "%03d", error);
             m_pixels->Clear();
             m_pixels->DrawText(20, str, RED);
-            m_pixels->Update(true);
+            m_pixels->Update();
             ElapsedTime::Delay(5000);
         });
 

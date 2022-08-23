@@ -93,7 +93,10 @@ enum LEDOptionPositions_e {
 class Pixels {
   private:
 #if FCOS_ESP32_C3
-    NeoPixelBus<NeoGrbFeature, NeoTx1812Method> m_neoPixels;
+    // Note: NeoTx1812Method timing seems to cause more glitches with the TC2020
+    // so just use the default WS2812x timing
+    NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> m_neoPixels;
+
 #elif FCOS_ESP8266
     NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod> m_neoPixels;
 #endif
@@ -102,7 +105,6 @@ class Pixels {
     float m_currentBrightness{-1};
     float m_adjustedBrightness{-1};
 
-    ElapsedTime m_sinceLastShow;
     ElapsedTime m_sinceLastLightSensorUpdate;
 
     bool m_isPXLmode{false};
@@ -136,30 +138,23 @@ class Pixels {
         SetLEDBrightnessMultiplierFromSensor();
     }
 
-    bool Update(const bool force = false) {
-        if (m_sinceLastLightSensorUpdate.Ms() >= LIGHT_SENSOR_UPDATE_MS ||
-            force) {
+    void Update() {
+        if (m_sinceLastLightSensorUpdate.Ms() >= LIGHT_SENSOR_UPDATE_MS) {
             m_sinceLastLightSensorUpdate.Reset();
             SetLEDBrightnessMultiplierFromSensor();
         }
 
-        if (m_sinceLastShow.Ms() >= 1000 / FRAMES_PER_SECOND || force) {
-            m_sinceLastShow.Reset();
-            Show();
-            m_isPXLmode = ((*m_settings)["PXL"] == "1");
-            return true;
-        }
-        return false;
+        Show();
+        m_isPXLmode = ((*m_settings)["PXL"] == "1");
     }
 
     void Show() {
         m_neoPixels.Show();
-
-        while (!m_neoPixels.CanShow()) {
-            // make sure that no other code (including espressif code!)
-            // messes up the data transmission to the LEDs while the
-            // RMT peripheral is running (~3.1ms per update)
-        }
+#ifdef FCOS_ESP32_C3
+        // updating 92 pixels takes ~3.1ms and the RMT will glitch
+        // the pixels if we don't wait before anything else happens
+        ElapsedTime::Delay(4);
+#endif
     }
 
     void Clear(const RgbColor color = BLACK,
@@ -523,11 +518,12 @@ class Pixels {
         m_currentBrightness = m_lightSensor.GetScaled();
 
         int configuredMinBrightness = (*m_settings)["MINB"].as<int>();
+        float pixelMinBrightness = 0.02f;
         if (m_useDarkMode) {
+            pixelMinBrightness = 0.0045f;
             configuredMinBrightness = 0;
         }
 
-        const float pixelMinBrightness = 0.0045f;
         m_adjustedBrightness = pixelMinBrightness +
                                (0.04f * configuredMinBrightness) +
                                (m_currentBrightness * 0.9f);
