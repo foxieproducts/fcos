@@ -95,7 +95,7 @@ class Pixels {
 #if FCOS_ESP32_C3
     // Note: NeoTx1812Method timing seems to cause more glitches with the TC2020
     // so just use the default WS2812x timing
-    NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> m_neoPixels;
+    NeoPixelBus<NeoGrbFeature, NeoEsp32BitBangWs2812xMethod> m_neoPixels;
 
 #elif FCOS_ESP8266
     NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod> m_neoPixels;
@@ -150,11 +150,6 @@ class Pixels {
 
     void Show() {
         m_neoPixels.Show();
-#ifdef FCOS_ESP32_C3
-        // updating 92 pixels takes ~3.1ms and the RMT will glitch
-        // the pixels if we don't wait before anything else happens
-        ElapsedTime::Delay(4, true);
-#endif
     }
 
     void Clear(const RgbColor color = BLACK,

@@ -1,3 +1,8 @@
+1.05
+----
+- Another attempt to kill the rare green flicker, this time
+  using bitbanging instead of the RMT peripheral
+
 1.04
 ----
 - Another attempt to reduce rare green flicker
