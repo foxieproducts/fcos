@@ -153,7 +153,7 @@ class Pixels {
 #ifdef FCOS_ESP32_C3
         // updating 92 pixels takes ~3.1ms and the RMT will glitch
         // the pixels if we don't wait before anything else happens
-        ElapsedTime::Delay(4);
+        ElapsedTime::Delay(4, true);
 #endif
     }
 

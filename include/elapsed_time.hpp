@@ -12,10 +12,12 @@ class ElapsedTime {
     size_t Ms() const { return millis() - m_millis; }
     size_t S() const { return Ms() / 1000; }
 
-    static void Delay(const size_t ms) {
+    static void Delay(const size_t ms, const bool hard = false) {
         ElapsedTime delayTime;
         do {
-            delay(1);
+            if (!hard) {
+                delay(1);
+            }
         } while (delayTime.Ms() < ms);
     }
 };

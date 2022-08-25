@@ -1,3 +1,7 @@
+1.04
+----
+- Another attempt to reduce rare green flicker
+
 1.03
 ----
 - Reduce rare green flicker
