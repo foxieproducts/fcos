@@ -3,10 +3,10 @@
 
 #include <clock.hpp>
 #include <config_menu.hpp>
+#include <devel_updates.hpp>
 #include <display.hpp>
 #include <dprint.hpp>
 #include <elapsed_time.hpp>
-#include <fw_update.hpp>
 #include <pixels.hpp>
 #include <rtc.hpp>
 #include <settings.hpp>
@@ -26,7 +26,7 @@ void setup() {
     auto pixels = std::make_shared<Pixels>(settings);
     auto rtc = std::make_shared<Rtc>(settings);
     auto joy = std::make_shared<Joystick>();
-    auto fw_update = std::make_shared<FwUpdate>(pixels);
+    auto develUpdates = std::make_shared<DevelUpdates>(pixels);
 
     // TODO: check for a button being held on boot to reset all settings
     // (including wifi)
@@ -48,7 +48,7 @@ void setup() {
         ShowSerialStatusMessage(pixels, rtc);
         rtc->Update();
         joy->Update();
-        fw_update->Update();
+        develUpdates->Update();
         displayMgr->Update();
         yield();  // allow the ESP platform tasks to run
     }
