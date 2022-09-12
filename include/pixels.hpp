@@ -93,8 +93,18 @@ enum LEDOptionPositions_e {
 class Pixels {
   private:
 #if FCOS_ESP32_C3
-    // Note: NeoTx1812Method timing seems to cause more glitches with the TC2020
-    // so just use the default WS2812x timing
+    // Note: NeoPixelBus' Tx1812 timing seems to cause more glitches with
+    // the TC2020, so just use the default WS2812x timing
+    // NeoEsp32BitBangWs2812xMethod does not flicker
+    // NeoEsp32Rmt0Tx1812Method has flicker
+    // NeoEsp32Rmt1Tx1812Method has flicker
+    // NeoEsp32Rmt0Ws2812xMethod is _pretty stable_ but all the other
+    //                           ones using the RMT behave badly with
+    //                           network traffic
+    //                           it's almost like there's a special case
+    //                           in the ESP core for this kind of use
+    //                           on channel 0
+    // NeoEsp32Rmt1Ws2812xMethod flickers less often
     NeoPixelBus<NeoGrbFeature, NeoEsp32BitBangWs2812xMethod> m_neoPixels;
 
 #elif FCOS_ESP8266
