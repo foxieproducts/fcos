@@ -31,7 +31,7 @@ class WiFiConfig : public Numeric {
         PrepareConfigPortalParameters();
     }
 
-    virtual void Activate() { Numeric::Activate(); }
+    virtual void Activate() override { Numeric::Activate(); }
 
     virtual void Update() override {
         Numeric::Update();
@@ -67,6 +67,12 @@ class WiFiConfig : public Numeric {
             m_pixels->Update();
             m_wifiMgr.stopConfigPortal();
         }
+        if ((*m_settings)["wifi_configured"] != "1") {
+            (*m_settings)["WIFI"] = "0";
+        } else if ((*m_settings)["wifi_configured"] == "1" &&
+                   (*m_settings)["WIFI"] == "2") {
+            (*m_settings)["WIFI"] = "1";
+        }
     }
 
     virtual bool ShouldTimeout() override {
@@ -80,7 +86,12 @@ class WiFiConfig : public Numeric {
         if ((*m_settings)["WIFI"] == "2" ||
             ((*m_settings)["WIFI"] == "1" &&
              (*m_settings)["wifi_configured"] != "1")) {
-            DisplayConfigPortal();
+            (*m_settings)["WIFI"] = "2";
+            if ((*m_settings)["wifi_configured"] != "1") {
+                m_wifiMgr.resetSettings();
+            }
+            Activate();
+            m_wifiMgr.startConfigPortal("Foxie_WiFiSetup");
         }
         if (WiFi.isConnected() && (*m_settings)["WIFI"] == "0") {
             DPRINT("Disabling WiFi                                  \n");
@@ -92,18 +103,7 @@ class WiFiConfig : public Numeric {
         }
     }
 
-    void DisplayConfigPortal() {
-        if ((*m_settings)["WIFI"] == "1") {
-            (*m_settings)["WIFI"] = "0";
-            (*m_settings).remove("wifi_configured");
-        } else if ((*m_settings)["WIFI"] == "2") {
-            (*m_settings)["WIFI"] = "1";
-        }
-        m_wifiMgr.startConfigPortal("Foxie_WiFiSetup");
-    }
-
-    String getParam(String name) {
-        // read parameter from server, for customhmtl input
+    String GetHttpParam(String name) {
         String value;
         if (m_wifiMgr.server->hasArg(name)) {
             value = m_wifiMgr.server->arg(name);
@@ -133,7 +133,7 @@ class WiFiConfig : public Numeric {
         m_wifiMgr.setSaveParamsCallback([&]() {
             // do stuff with the params (timezone)
             auto names = m_rtc->GetTimezoneNames();
-            size_t selected = getParam("tz_select").toInt();
+            size_t selected = GetHttpParam("tz_select").toInt();
             selected = selected > 0 && selected < names.size() ? selected : 0;
             (*m_settings)["timezone"] = names[selected];
             (*m_settings)["TIMEZONE"] = selected;
@@ -147,7 +147,7 @@ class WiFiConfig : public Numeric {
 
         m_timeZonesHtml = R"(
             <br/>
-            <label for='tz_select'>Select Timezone:</label>
+            <label for='tz_select'>Select Timezone (Note: only affects clock when on WiFi):</label>
             <select name="tz_select" id="tz_select" class="button">
             )";
 
