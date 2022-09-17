@@ -28,8 +28,17 @@ void setup() {
     auto joy = std::make_shared<Joystick>();
     auto develUpdates = std::make_shared<DevelUpdates>(pixels);
 
-    // TODO: check for a button being held on boot to reset all settings
-    // (including wifi)
+    if (joy->AreAnyButtonsPressed() == PIN_BTN_LEFT) {
+        pixels->Clear();
+        pixels->DrawChar(8, ':', ORANGE);
+        pixels->Show();
+        joy->WaitForNoButtonsPressed();
+        settings->clear();
+        settings->Save();
+        rtc->SetClockToZero();
+        esp_wifi_restore();
+        ESP.restart();
+    }
 
     // These are the "displays" that are available, but more can be added. The
     // DisplayMgr navigates between them using left/right motions, if the
