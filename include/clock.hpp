@@ -105,10 +105,11 @@ class Clock : public Display {
 
     // toggles between configured MINB=user and temporary MINB=0
     virtual void Press(const Button::Event_e evt) override {
-        static bool toggled = false;
+        static bool toggledDarkMode = false;
         if (evt == Button::RELEASE) {
-            if (toggled) {
-                toggled = false;
+            if (toggledDarkMode) {
+                // don't want to change anim mode when toggling dark mode
+                toggledDarkMode = false;
                 return;
             }
 
@@ -120,7 +121,7 @@ class Clock : public Display {
             PrepareToSaveSettings();
         } else if (evt == Button::REPEAT) {
             m_pixels->ToggleDarkMode();
-            toggled = true;
+            toggledDarkMode = true;
         }
     }
 
