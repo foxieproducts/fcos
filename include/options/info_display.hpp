@@ -1,10 +1,13 @@
 #pragma once
 #if FCOS_ESP32_C3
 #include <WiFi.h>
+#include <Zanshin_BME680.h>
+#include <dprint.hpp>
 #elif FCOS_ESP8266
 #include <ESP8266WiFi.h>
 #endif
 #include <display.hpp>
+#include <elapsed_time.hpp>
 
 class InfoDisplay : public Display {
     enum Type_e {
@@ -12,17 +15,45 @@ class InfoDisplay : public Display {
         INFO_LIGHT_SENSOR,
         INFO_IP_ADDR,
         INFO_UPTIME_HOURS,
+#if FCOS_ESP32_C3
+        INFO_BME680_TEMPERATURE_F,
+        INFO_BME680_TEMPERATURE_C,
+    //  INFO_BME680_PRESSURE,
+    //  INFO_BME680_HUMIDITY,
+    //  INFO_BME680_GAS,
+#endif
         INFO_TOTAL,
     };
 
     size_t m_type{INFO_VERSION};
 
+    BME680_Class m_BME680;
+    ElapsedTime m_sinceLastSensorData;
+    int32_t m_temperatureC{0};
+    int32_t m_temperatureF{0};
+    bool m_isBME680Present;
+
   public:
-    InfoDisplay() : Display() { m_name = "INFO"; }
+    InfoDisplay() : Display() {
+        m_name = "INFO";
+
+        m_isBME680Present = m_BME680.begin();
+        if (m_isBME680Present) {
+            m_BME680.setOversampling(TemperatureSensor, Oversample16);
+        }
+    }
 
     virtual void Update() override {
+        if (m_isBME680Present && m_sinceLastSensorData.Ms() > 250) {
+            m_sinceLastSensorData.Reset();
+            int32_t humidity, pressure, gas;  // placeholders
+            m_BME680.getSensorData(m_temperatureC, humidity, pressure, gas);
+            m_temperatureC /= 100;  // temp is in 0.01 deg C
+            m_temperatureF = ((float)m_temperatureC * 1.8f) + 32;
+        }
+
         m_pixels->Clear();
-        char str[10];
+        char str[10] = {0};
         switch (m_type) {
             case INFO_VERSION:
                 m_pixels->DrawText(0, " " + String(FW_VERSION), PURPLE);
@@ -46,6 +77,16 @@ class InfoDisplay : public Display {
                 sprintf(str, "%4d", m_rtc->Uptime() / 60 / 60);
                 m_pixels->DrawText(0, str, GREEN);
                 break;
+
+            case INFO_BME680_TEMPERATURE_F:
+                sprintf(str, "%4d", m_temperatureF);
+                m_pixels->DrawText(0, str, CYAN);
+                break;
+
+            case INFO_BME680_TEMPERATURE_C:
+                sprintf(str, "%4d", m_temperatureC);
+                m_pixels->DrawText(0, str, CYAN);
+                break;
         }
     }
 
@@ -65,5 +106,7 @@ class InfoDisplay : public Display {
     }
     // any left/right button press will exit this display
 
-    virtual bool ShouldTimeout() override { return false; }
+    virtual bool ShouldTimeout() override {
+        return false;
+    }
 };
