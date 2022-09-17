@@ -2,6 +2,9 @@
 ----
 - Add partial support for BME680 sensor -- displays temperature in F and C
   if one is plugged in before powering up. _Don't hot plug_!
+  See output by selecting INFO, then use the up button to go past
+  version, light sensor val, IP addr, and uptime, to reach Temp F and C.
+  Zero is displayed when no sensor is detected.
 - Improve WiFi configuration behavior so that "2" always means "config"
 - Improve PXL mode brightness behavior
 - Hold joystick left then plug in the USB cable to go "back" to default
@@ -32,13 +35,14 @@ This is a simple revision to be confirm the entire end to end update process.
 1.00
 ----
 This is the initial release of the FCOS firmware. 
-It primarily supports the ESP32-C3-based Foxie Clock 2.0, 
-but will also support the CardClock 1.0 and future clocks. 
+It only supports the ESP32-C3-based Foxie Clock 2.0, 
+but will also support the CardClock 1.0 and future clocks... soon.
 Note: There is no Bluetooth support in the 1.0 firmware. It
-      could potentially be used to control over BT devices.
+      could potentially be used to control other BT devices. Maybe
+      even original Foxie Clocks with the SparkFun Artemis Nano :)
 
 The first 4 characters in this file are read over the internet
 by the firmware when an update check is performed. Currently, 
-the firmware only checks for firmware updates when the user
-asks it to update. Perhaps eventually, a check could be performed
-once per day, and then the update LED could be lit up in orange?
+the firmware only checks for updates when the user selects UPDT
+Eventually, a check could be performed once per day, and then the
+update LED could gently pulsate orange?
