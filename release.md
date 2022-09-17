@@ -1,3 +1,13 @@
+1.06
+----
+- Add partial support for BME680 sensor -- displays temperature in F and C
+  if one is plugged in before powering up. _Don't hot plug_!
+- Improve WiFi configuration behavior so that "2" always means "config"
+- Improve PXL mode brightness behavior
+- Hold joystick left then plug in the USB cable to go "back" to default
+  settings. The colon will light up orange until you let go of the joystick,
+  then will reboot with all settings cleared.
+
 1.05
 ----
 - Another attempt to kill the rare green flicker, this time
