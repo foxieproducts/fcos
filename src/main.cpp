@@ -36,7 +36,6 @@ void setup() {
         settings->clear();
         settings->Save();
         rtc->SetClockToZero();
-        esp_wifi_restore();
         ESP.restart();
     }
 
