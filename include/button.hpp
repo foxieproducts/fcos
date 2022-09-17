@@ -157,6 +157,7 @@ class Joystick {
     }
 
     int AreAnyButtonsPressed() {
+        Update();
         if (up.IsPressed()) {
             return PIN_BTN_UP;
         } else if (down.IsPressed()) {
@@ -172,8 +173,7 @@ class Joystick {
     }
 
     void WaitForNoButtonsPressed() {
-        while (AreAnyButtonsPressed() == -1) {
-            Update();
+        while (AreAnyButtonsPressed() != -1) {
             ElapsedTime::Delay(1);
         }
     }
