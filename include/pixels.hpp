@@ -532,7 +532,7 @@ class Pixels {
         if (m_isPXLmode) {
             m_adjustedBrightness = pixelMinBrightness +
                                    (0.006f * configuredMinBrightness) +
-                                   (m_currentBrightness * 0.15f);
+                                   (m_currentBrightness * 0.125f);
         } else {
             m_adjustedBrightness = pixelMinBrightness +
                                    (0.04f * configuredMinBrightness) +
