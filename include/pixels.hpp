@@ -523,23 +523,23 @@ class Pixels {
         m_currentBrightness = m_lightSensor.GetScaled();
 
         int configuredMinBrightness = (*m_settings)["MINB"].as<int>();
-        float pixelMinBrightness = 0.02f;
+        float pixelMinBrightness = 0.008f;
         if (m_useDarkMode) {
             pixelMinBrightness = 0.0045f;
             configuredMinBrightness = 0;
         }
 
-        m_adjustedBrightness = pixelMinBrightness +
-                               (0.04f * configuredMinBrightness) +
-                               (m_currentBrightness * 0.9f);
-        if (m_adjustedBrightness > 0.9f) {
-            m_adjustedBrightness = 0.9f;
-        }
-
         if (m_isPXLmode) {
             m_adjustedBrightness = pixelMinBrightness +
-                                   (0.002f * configuredMinBrightness) +
-                                   (m_adjustedBrightness * 0.1f);
+                                   (0.006f * configuredMinBrightness) +
+                                   (m_currentBrightness * 0.15f);
+        } else {
+            m_adjustedBrightness = pixelMinBrightness +
+                                   (0.04f * configuredMinBrightness) +
+                                   (m_currentBrightness * 0.9f);
+            if (m_adjustedBrightness > 0.9f) {
+                m_adjustedBrightness = 0.9f;
+            }
         }
     }
 };
