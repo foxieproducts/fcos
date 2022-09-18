@@ -8,6 +8,8 @@ Foxie Clocks can be in 3 different display modes: Clock, Set Time,
 or Configuration. When started up, the Clock mode is active. See below for
 descriptions of what the joystick does in each mode.
 
+A `long` press must be held for ~1 second. 
+
 ### Clock mode
 `Left  (long)`  - Enter Set Time mode
 
@@ -32,7 +34,7 @@ descriptions of what the joystick does in each mode.
 `Right (long)`   - Exit Set Time mode
 
 ### Configuration mode
-When in configuration mode, the selected LED and the number of the mode will be displayed
+When in configuration mode, the selected LED will light up and the number of that setting will also be shown.
 
 `Up/Down`       - Select which setting to configure, or increase/decrease the setting value
 
