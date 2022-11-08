@@ -1,3 +1,7 @@
+1.07
+----
+- Fix bug with not displaying the updated timezone selection
+
 1.06
 ----
 - Add partial support for BME680 sensor -- displays temperature in F and C

@@ -13,8 +13,8 @@ class WiFiConfig : public Numeric {
     ElapsedTime m_wifiLedAnim;
     bool m_isInitialized{false};
 
-    String m_timeZonesHtml;
-    WiFiManagerParameter* m_setupHtmlParam{nullptr};
+    char m_timeZonesHtml[2048] = {0};
+    WiFiManagerParameter m_setupHtmlParam{m_timeZonesHtml};
 
   public:
     // 0 = off, 1 = on, 2 = show config portal
@@ -138,14 +138,19 @@ class WiFiConfig : public Numeric {
             (*m_settings)["timezone"] = names[selected];
             (*m_settings)["TIMEZONE"] = selected;
             m_rtc->ForceNTPUpdate();
+            SetupTimeZoneHtml();
         });
         m_wifiMgr.setConfigPortalTimeout(60);
 
         std::vector<const char*> menu = {"wifi", "param", "sep", "info",
                                          "exit"};
         m_wifiMgr.setMenu(menu);
+        SetupTimeZoneHtml();
+        m_wifiMgr.addParameter(&m_setupHtmlParam);
+    }
 
-        m_timeZonesHtml = R"(
+    void SetupTimeZoneHtml() {
+        String html = R"(
             <br/>
             <label for='tz_select'>Select Timezone (Note: only affects clock when on WiFi):</label>
             <select name="tz_select" id="tz_select" class="button">
@@ -154,16 +159,15 @@ class WiFiConfig : public Numeric {
         auto names = m_rtc->GetTimezoneNames();
         size_t index = 0;
         for (const auto& name : names) {
-            m_timeZonesHtml += "<option value='" + String(index) + "'";
+            html += "<option value='" + String(index) + "'";
             if ((*m_settings)["TIMEZONE"].as<size_t>() == index) {
-                m_timeZonesHtml += " selected";
+                html += " selected";
             }
-            m_timeZonesHtml += ">" + name + "</option>";
+            html += ">" + name + "</option>";
             index++;
         }
-        m_timeZonesHtml += "</select>";
+        html += "</select>";
 
-        m_setupHtmlParam = new WiFiManagerParameter(m_timeZonesHtml.c_str());
-        m_wifiMgr.addParameter(m_setupHtmlParam);
+        strcpy(m_timeZonesHtml, html.c_str());
     }
 };
