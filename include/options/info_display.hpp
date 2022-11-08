@@ -27,23 +27,28 @@ class InfoDisplay : public Display {
 
     size_t m_type{INFO_VERSION};
 
+#if FCOS_ESP32_C3
     BME680_Class m_BME680;
+#endif
     ElapsedTime m_sinceLastSensorData;
     int32_t m_temperatureC{0};
     int32_t m_temperatureF{0};
-    bool m_isBME680Present;
+    bool m_isBME680Present{false};
 
   public:
     InfoDisplay() : Display() {
         m_name = "INFO";
 
+#if FCOS_ESP32_C3
         m_isBME680Present = m_BME680.begin();
         if (m_isBME680Present) {
             m_BME680.setOversampling(TemperatureSensor, Oversample16);
         }
+#endif
     }
 
     virtual void Update() override {
+#if FCOS_ESP32_C3
         if (m_isBME680Present && m_sinceLastSensorData.Ms() > 250) {
             m_sinceLastSensorData.Reset();
             int32_t humidity, pressure, gas;  // placeholders
@@ -51,6 +56,7 @@ class InfoDisplay : public Display {
             m_temperatureC /= 100;  // temp is in 0.01 deg C
             m_temperatureF = ((float)m_temperatureC * 1.8f) + 32;
         }
+#endif
 
         m_pixels->Clear();
         char str[10] = {0};
@@ -78,6 +84,7 @@ class InfoDisplay : public Display {
                 m_pixels->DrawText(0, str, GREEN);
                 break;
 
+#if FCOS_ESP32_C3
             case INFO_BME680_TEMPERATURE_F:
                 sprintf(str, "%4d", m_temperatureF);
                 m_pixels->DrawText(0, str, CYAN);
@@ -87,6 +94,7 @@ class InfoDisplay : public Display {
                 sprintf(str, "%4d", m_temperatureC);
                 m_pixels->DrawText(0, str, CYAN);
                 break;
+#endif
         }
     }
 
