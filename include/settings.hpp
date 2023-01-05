@@ -5,7 +5,7 @@
 class Settings : public DynamicJsonDocument {
   private:
     enum {
-        MAX_SETTINGS_SIZE = 4096,
+        MAX_SETTINGS_SIZE = 32768,
     };
 
     String m_filename;
@@ -52,9 +52,7 @@ class Settings : public DynamicJsonDocument {
 
         return success;
     }
-    bool IsLoaded() {
-        return m_loaded;
-    }
+    bool IsLoaded() { return m_loaded; }
 
   private:
     bool IsSameAsSavedFile() {

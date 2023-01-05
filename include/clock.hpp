@@ -18,14 +18,11 @@ class Clock : public Display {
     bool m_shouldSaveSettings{false};
 
     ElapsedTime m_waitingToSaveSettings;
-    ElapsedTime m_sinceStartedConfigMode;
     ElapsedTime m_sinceButtonPressed;
-    bool m_showingColorWheel{false};
 
     bool m_blinkerRunning{false};
     ElapsedTime m_blinkerTimer;
 
-    uint8_t m_colorWheelPos{0};
     RgbColor m_currentColor{0};
     std::shared_ptr<Animator> m_anim;
 
@@ -34,20 +31,15 @@ class Clock : public Display {
 
     virtual void Activate() override {
         LoadSettings();
-        m_showingColorWheel = false;
-        SetAnimator(CreateAnimator((AnimatorType_e)m_animMode));
+        SetAnimator(CreateAnimator(m_pixels, m_settings, m_rtc,
+                                   (AnimatorType_e)m_animMode));
     }
 
     virtual void Update() override {
-        RgbColor color = Pixels::ColorWheel(m_colorWheelPos);
+        RgbColor color = Pixels::ColorWheel((*m_settings)["COLR"]);
         m_currentColor = color;
         m_pixels->Darken();
         m_anim->Update();
-        if (m_showingColorWheel) {
-#if FCOS_FOXIECLOCK
-            // m_pixels->DrawColorWheelBetween(m_colorWheelPos, 82, 90);
-#endif
-        }
         DrawClockDigits(m_currentColor);
         if ((m_pixels->GetBrightness() >= 0.05f ||
              (*m_settings)["MINB"] != "0")) {
@@ -59,47 +51,36 @@ class Clock : public Display {
 
     void SetAnimator(std::shared_ptr<Animator> anim) {
         m_anim = anim;
-        m_anim->pixels = m_pixels;
-        m_anim->rtc = m_rtc;
-        m_anim->SetColor(m_colorWheelPos);
+        m_anim->Start();
+        m_anim->SetColor((*m_settings)["COLR"].as<uint8_t>());
     }
 
   protected:
     virtual void Up(const Button::Event_e evt) override {
-        if (!m_anim->CanChangeColor()) {
-            return;
-        }
         if (evt == Button::PRESS || evt == Button::REPEAT) {
-            m_colorWheelPos -= 3;  // uint8_t wrapping is intended
-            m_anim->SetColor(m_colorWheelPos);
-            (*m_settings)["COLR"] = m_colorWheelPos;
-
-            m_sinceStartedConfigMode.Reset();
-            m_showingColorWheel = true;
+            m_anim->Up();
             PrepareToSaveSettings();
         }
     };
 
     virtual void Down(const Button::Event_e evt) {
-        if (!m_anim->CanChangeColor()) {
-            return;
-        }
         if (evt == Button::PRESS || evt == Button::REPEAT) {
-            m_colorWheelPos += 3;  // uint8_t wrapping is intended
-            m_anim->SetColor(m_colorWheelPos);
-            (*m_settings)["COLR"] = m_colorWheelPos;
-
-            m_sinceStartedConfigMode.Reset();
-            m_showingColorWheel = true;
+            m_anim->Down();
             PrepareToSaveSettings();
         }
     };
 
     virtual bool Left(const Button::Event_e evt) {
+        if (evt == Button::PRESS) {
+            m_anim->Left();
+        }
         return evt != Button::REPEAT;  // when held, move to SetTime display
     };
 
     virtual bool Right(const Button::Event_e evt) {
+        if (evt == Button::PRESS) {
+            m_anim->Right();
+        }
         return evt != Button::REPEAT;  // when held, move to ConfigMenu display
     };
 
@@ -116,8 +97,13 @@ class Clock : public Display {
             if (++m_animMode >= ANIM_TOTAL) {
                 m_animMode = 0;
             }
-            SetAnimator(CreateAnimator((AnimatorType_e)m_animMode));
+            SetAnimator(CreateAnimator(m_pixels, m_settings, m_rtc,
+                                       (AnimatorType_e)m_animMode));
             (*m_settings)["ANIM"] = m_animMode + 1;
+            m_pixels->Clear();
+            m_pixels->DrawText(0, (*m_settings)["ANIM"], LIGHT_GRAY);
+            m_pixels->Show();
+            ElapsedTime::Delay(300);
             PrepareToSaveSettings();
         } else if (evt == Button::REPEAT) {
             m_pixels->ToggleDarkMode();
@@ -149,12 +135,9 @@ class Clock : public Display {
             m_blinkerRunning = true;
             m_blinkerTimer.Reset();
         }
-        const uint8_t pos = m_colorWheelPos;
-        const auto colorWhl = &Pixels::ColorWheel;
         const auto scale = &Pixels::ScaleBrightness;
-
-        RgbColor bottomColor = colorWhl(pos - 8);  // + 128
-        RgbColor topColor = colorWhl(pos - 8);     // + 64
+        RgbColor bottomColor = m_anim->GetColonColor();
+        RgbColor topColor = bottomColor;
 
         if (m_blinkerRunning) {
             const float progress = m_blinkerTimer.Ms() / 1900.0f;
@@ -196,19 +179,12 @@ class Clock : public Display {
             TDPRINT(m_rtc, "Saved settings in %dms                          \n",
                     saveTime.Ms());  // usually ~25ms
             m_shouldSaveSettings = false;
-            m_showingColorWheel = false;
         }
     }
 
     void LoadSettings() {
         if (!(*m_settings).containsKey("WLED")) {
             (*m_settings)["WLED"] = "ON";
-        }
-
-        if (!(*m_settings).containsKey("COLR")) {
-            (*m_settings)["COLR"] = m_colorWheelPos;
-        } else {
-            m_colorWheelPos = (*m_settings)["COLR"].as<uint32_t>();
         }
 
         if (!(*m_settings).containsKey("ANIM")) {

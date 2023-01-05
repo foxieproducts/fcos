@@ -1,3 +1,8 @@
+1.08
+----
+- Add new animation mode 5 with configurable colors per column
+- Briefly shows animation mode # when clicking center button
+
 1.07
 ----
 - Fix bug with not displaying the updated timezone selection

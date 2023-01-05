@@ -51,7 +51,8 @@ When in configuration mode, the selected LED will light up and the number of tha
 2. Rainbow (no animation)
 3. Rainbow 1 (colors smoothly change)
 4. Rainbow 2 (colors smoothly change, and are slightly "closer" together on the spectrum)
-   (More coming soon!)
+5. Individual digit color control, use left/right to "select" the active digit, which will
+   blink twice in white.
 
 *Note:* ANIM8tions are also changed via a `Press (quick)` in Clock mode.
 
