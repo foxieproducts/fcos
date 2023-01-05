@@ -127,7 +127,7 @@ struct RainbowRotate2 : public Animator {
 };
 
 struct IndividualDigitColors : public Animator {
-    size_t selected{3};
+    size_t selected{4};
     uint8_t wheelColors[5] = {0};  // 5th is for the colon
     ElapsedTime timeShown;
     bool show{false};
