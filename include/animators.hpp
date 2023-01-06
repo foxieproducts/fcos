@@ -202,9 +202,9 @@ struct IndividualDigitColors : public Animator {
     void StoreSettings() {
         (*settings)["ANIM_INDIVIDUAL_COL0"] = wheelColors[0];
         (*settings)["ANIM_INDIVIDUAL_COL1"] = wheelColors[1];
-        (*settings)["ANIM_INDIVIDUAL_COL2"] = wheelColors[2];
-        (*settings)["ANIM_INDIVIDUAL_COL3"] = wheelColors[3];
-        (*settings)["ANIM_INDIVIDUAL_COLON"] = wheelColors[4];
+        (*settings)["ANIM_INDIVIDUAL_COLON"] = wheelColors[2];
+        (*settings)["ANIM_INDIVIDUAL_COL2"] = wheelColors[3];
+        (*settings)["ANIM_INDIVIDUAL_COL3"] = wheelColors[4];
     }
 };
 
