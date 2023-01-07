@@ -1,7 +1,7 @@
 1.08
 ----
-- Add new animation mode 5 with configurable colors per column
-- Briefly shows animation mode # when clicking center button
+- Add new animation mode 5 with configurable colors per column. Use short left/right presses to select active digit, then up/down to change the color of that column. 
+- Also now briefly shows animation mode # when clicking center button in white.
 
 1.07
 ----
