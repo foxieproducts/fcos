@@ -1,3 +1,7 @@
+1.09
+----
+- Minor improvements, now using latest espressif SDK for better wireless reliability.
+
 1.08
 ----
 - Add new animation mode 5 with configurable colors per column. Use short left/right presses to select active digit, then up/down to change the color of that column. 
