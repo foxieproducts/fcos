@@ -29,11 +29,7 @@ class Button {
     ElapsedTime m_etSinceRepeat;
 
   public:
-    Button(const int pin) : m_pin(pin) {
-#if ARDUINO
-        pinMode(pin, INPUT_PULLUP);
-#endif
-    }
+    Button(const int pin);
 
     // public, for easy external configuration. Use with care.
     struct Config {
@@ -46,97 +42,30 @@ class Button {
         HandlerFunc_t handlerFunc;
     } config;
 
-    void Update() {
-        if (!m_enabled) {
-            return;
-        }
+    void Update();
 
-        if (HasPinStateChanged()) {
-            if (m_isPressed && MustDelayBeforePress() == false) {
-                SendEvent(PRESS);
-            } else if (!m_isPressed) {
-                SendEvent(RELEASE);
-            }
-        }
+    bool IsPressed() const;
+    size_t GetTimeInState() const;
 
-        if (ShouldSendDelayedPress()) {
-            SendEvent(PRESS);
-        }
+    void SetEnabled(const bool enabled);
 
-        if (ShouldRepeat()) {
-            SendEvent(REPEAT);
-        }
-    }
+    void Reset();
 
-    bool IsPressed() const {
-        return m_enabled && m_isPressed;
-    }
-    size_t GetTimeInState() const {
-        return m_etInState.Ms();
-    }
-
-    void SetEnabled(const bool enabled) {
-        m_enabled = enabled;
-        Reset();
-    }
-
-    void Reset() {
-        m_etInState.Reset();
-        m_isPressed = m_pressEventSent = m_debouncing = false;
-    }
-
-    void SetDigitalReadFunc(const DigitalReadFunc_t& func) {
-        m_digitalReadFunc = func;
-    }
+    void SetDigitalReadFunc(const DigitalReadFunc_t& func);
 
   private:
-    void SendEvent(const Event_e evt) {
-        m_etSinceRepeat.Reset();
-        if (config.handlerFunc) {
-            config.handlerFunc(evt);
-        }
-        m_pressEventSent = m_isPressed;
-    }
+    void SendEvent(const Event_e evt);
 
-    bool MustDelayBeforePress() const {
-        return config.beforePress > 0;
-    }
-    bool ShouldSendDelayedPress() const {
-        return m_isPressed && !m_pressEventSent && MustDelayBeforePress() &&
-               m_etInState.Ms() >= config.beforePress;
-    }
+    bool MustDelayBeforePress() const;
+    bool ShouldSendDelayedPress() const;
 
-    bool ShouldRepeat() {
-        return !HasPinStateChanged() && m_isPressed && config.canRepeat &&
-               m_pressEventSent && m_etInState.Ms() >= config.beforeRepeat &&
-               (m_etSinceRepeat.Ms() >= config.repeatRate);
-    }
+    bool ShouldRepeat();
 
-    bool HasPinStateChanged() {
-        if (IsDebouncing()) {
-            return false;
-        }
+    bool HasPinStateChanged();
 
-        const bool isPressed = m_digitalReadFunc(m_pin) == LOW;
-        if (isPressed != m_isPressed) {
-            m_debouncing = true;  // no soup bounce for you!
-            m_isPressed = isPressed;
-            m_etInState.Reset();
-            return true;
-        }
-        return false;
-    }
-
-    bool IsDebouncing() {
-        if (!m_debouncing) {
-            return false;
-        }
-        m_debouncing = (m_etInState.Ms() < config.debounceTime);
-        return m_debouncing;
-    }
+    bool IsDebouncing();
 };
 
-#if FCOS_FOXIECLOCK
 class Joystick {
   private:
     std::vector<Button*> m_buttons;
@@ -148,46 +77,14 @@ class Joystick {
     Button right{PIN_BTN_RIGHT};
     Button press{PIN_BTN_PRESS};
 
-    Joystick() {
-        m_buttons.push_back(&up);
-        m_buttons.push_back(&down);
-        m_buttons.push_back(&left);
-        m_buttons.push_back(&right);
-        m_buttons.push_back(&press);
-    }
+    Joystick();
 
-    int AreAnyButtonsPressed() {
-        Update();
-        if (up.IsPressed()) {
-            return PIN_BTN_UP;
-        } else if (down.IsPressed()) {
-            return PIN_BTN_DOWN;
-        } else if (left.IsPressed()) {
-            return PIN_BTN_LEFT;
-        } else if (right.IsPressed()) {
-            return PIN_BTN_RIGHT;
-        } else if (press.IsPressed()) {
-            return PIN_BTN_PRESS;
-        }
-        return -1;
-    }
+    int AreAnyButtonsPressed();
+    bool WaitForButton(const Button& btn, const int ms = -1);
 
-    void WaitForNoButtonsPressed() {
-        while (AreAnyButtonsPressed() != -1) {
-            ElapsedTime::Delay(1);
-        }
-    }
+    void WaitForNoButtonsPressed();
 
-    void Reset() {
-        for (auto& btn : m_buttons) {
-            btn->Reset();
-        }
-    }
+    void Reset();
 
-    void Update() {
-        for (auto& btn : m_buttons) {
-            btn->Update();
-        }
-    }
+    void Update();
 };
-#endif

@@ -8,6 +8,7 @@
 #endif
 #include <display.hpp>
 #include <elapsed_time.hpp>
+#include <options/breakout.hpp>
 
 class InfoDisplay : public Display {
     enum Type_e {
@@ -35,6 +36,9 @@ class InfoDisplay : public Display {
     int32_t m_temperatureF{0};
     bool m_isBME680Present{false};
 
+    std::shared_ptr<Animator> m_demoAnim;
+    uint8_t m_demoAnimSelection{ANIM_NORMAL};
+
   public:
     InfoDisplay() : Display() {
         m_name = "INFO";
@@ -60,9 +64,15 @@ class InfoDisplay : public Display {
 
         m_pixels->Clear();
         char str[10] = {0};
+        int yPos = 0;
+        int xPos = 0;
+#if FCOS_CARDCLOCK2
+        yPos = 3;
+        xPos = 1;
+#endif
         switch (m_type) {
             case INFO_VERSION:
-                m_pixels->DrawText(0, " " + String(FW_VERSION), PURPLE);
+                m_pixels->DrawText(0, yPos, " " + String(FW_VERSION), PURPLE);
                 break;
 
             case INFO_LIGHT_SENSOR: {
@@ -70,29 +80,34 @@ class InfoDisplay : public Display {
                     (int)(m_pixels->GetBrightness() * 100);
                 size_t mantissa = (int)(m_pixels->GetBrightness() * 1000) % 10;
                 sprintf(str, "%2d.%d", brightnessPercent, mantissa);
-                m_pixels->DrawText(0, str, RED);
+                m_pixels->DrawText(0, yPos, str, RED);
                 break;
             }
 
             case INFO_IP_ADDR:
+#if FCOS_FOXIECLOCK
                 sprintf(str, "%03d", WiFi.localIP()[3]);
-                m_pixels->DrawText(20, str, BLUE);
+                m_pixels->DrawText(20, yPos, str, BLUE);
+#else
+                sprintf(str, "*.%03d", WiFi.localIP()[3]);
+                m_pixels->DrawText(0, yPos, str, BLUE);
+#endif
                 break;
 
             case INFO_UPTIME_HOURS:
                 sprintf(str, "%4d", m_rtc->Uptime() / 60 / 60);
-                m_pixels->DrawText(0, str, GREEN);
+                m_pixels->DrawText(xPos, yPos, str, GREEN);
                 break;
 
 #if FCOS_ESP32_C3
             case INFO_BME680_TEMPERATURE_F:
                 sprintf(str, "%4d", m_temperatureF);
-                m_pixels->DrawText(0, str, CYAN);
+                m_pixels->DrawText(xPos, yPos, str, CYAN);
                 break;
 
             case INFO_BME680_TEMPERATURE_C:
                 sprintf(str, "%4d", m_temperatureC);
-                m_pixels->DrawText(0, str, CYAN);
+                m_pixels->DrawText(xPos, yPos, str, CYAN);
                 break;
 #endif
         }
@@ -109,12 +124,14 @@ class InfoDisplay : public Display {
         if (evt == Button::PRESS || evt == Button::REPEAT) {
             if (m_type > 0) {
                 m_type--;
+            } else if (m_type == 0) {
+                Breakout game(m_pixels, m_settings, m_rtc);
+                game.Start();
             }
         }
     }
+
     // any left/right button press will exit this display
 
-    virtual bool ShouldTimeout() override {
-        return false;
-    }
+    virtual bool ShouldTimeout() override { return false; }
 };

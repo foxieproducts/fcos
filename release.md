@@ -1,3 +1,8 @@
+1.10
+----
+- Add functional test to first power-up (requires using 3d printed cover (in black) to isolate light sensor)
+- Add support for CardClock 2.0
+
 1.09
 ----
 - Minor improvements, now using latest espressif SDK for better wireless reliability.

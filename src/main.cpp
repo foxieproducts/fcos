@@ -1,43 +1,24 @@
 #include <arduino_hal.hpp>
-#include <memory>
-
 #include <clock.hpp>
 #include <config_menu.hpp>
 #include <devel_updates.hpp>
 #include <display.hpp>
 #include <dprint.hpp>
 #include <elapsed_time.hpp>
+#include <hardware.hpp>
+#include <memory>
 #include <pixels.hpp>
 #include <rtc.hpp>
 #include <settings.hpp>
 
-bool Rtc::m_receivedInterrupt = false;
-void ShowSerialStatusMessage(std::shared_ptr<Pixels> pixels,
-                             std::shared_ptr<Rtc> rtc);
-
 void setup() {
-#if FCOS_ESP32_C3
-    Serial.begin();
-#elif FCOS_ESP8266
-    Serial.begin(115200);
-#endif
-
     auto settings = std::make_shared<Settings>();
     auto pixels = std::make_shared<Pixels>(settings);
     auto rtc = std::make_shared<Rtc>(settings);
     auto joy = std::make_shared<Joystick>();
     auto develUpdates = std::make_shared<DevelUpdates>(pixels);
 
-    if (joy->AreAnyButtonsPressed() == PIN_BTN_LEFT) {
-        pixels->Clear();
-        pixels->DrawChar(8, ':', ORANGE);
-        pixels->Show();
-        joy->WaitForNoButtonsPressed();
-        settings->clear();
-        settings->Save();
-        rtc->SetClockToZero();
-        ESP.restart();
-    }
+    DoHardwareStartupTests(pixels, settings, rtc, joy);
 
     // These are the "displays" that are available, but more can be added. The
     // DisplayMgr navigates between them using left/right motions, if the
@@ -62,14 +43,4 @@ void setup() {
     }
 }
 
-void ShowSerialStatusMessage(std::shared_ptr<Pixels> pixels,
-                             std::shared_ptr<Rtc> rtc) {
-    static ElapsedTime statusDisplayTimer;
-    if (statusDisplayTimer.Ms() >= 50) {
-        statusDisplayTimer.Reset();
-        TDPRINT(rtc, "Light Sensor: %.1f%% - Uptime: %ds   \r",
-                pixels->GetBrightness() * 100, rtc->Uptime());
-    }
-}
-
-void loop() {}
+void loop() {}  // for loop above is used instead

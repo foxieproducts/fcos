@@ -6,6 +6,7 @@ class Numeric : public Display {
   protected:
     size_t m_index{0};
     std::vector<String> m_values;
+    std::vector<String> m_descriptions;
     bool m_canChangeValue{true};
 
   public:
@@ -42,12 +43,27 @@ class Numeric : public Display {
             return;
         }
 
+#if FCOS_FOXIECLOCK
         m_pixels->DrawText(42, m_values[m_index], GREEN);
         m_pixels->DrawChar(
             0, CHAR_UP_ARROW,
             (m_index < (m_values.size() - 1) ? GREEN : EXTRA_DARK_GRAY));
         m_pixels->DrawChar(0, CHAR_DOWN_ARROW,
                            (m_index > 0 ? GREEN : EXTRA_DARK_GRAY));
+#elif FCOS_CARDCLOCK2
+        if (m_descriptions.size()) {
+            m_pixels->DrawText(0, 3, m_descriptions[m_index], GREEN);
+
+        } else {
+            m_pixels->DrawText(0, 3, m_values[m_index], GREEN);
+        }
+
+        m_pixels->DrawChar(
+            14, 0, CHAR_UP_ARROW,
+            (m_index < (m_values.size() - 1) ? GREEN : EXTRA_DARK_GRAY));
+        m_pixels->DrawChar(14, 6, CHAR_DOWN_ARROW,
+                           (m_index > 0 ? GREEN : EXTRA_DARK_GRAY));
+#endif
     }
 
     virtual void Hide() override {
@@ -84,6 +100,10 @@ class Numeric : public Display {
 
     virtual String GetCurrentValue() {
         return m_values.size() ? m_values[m_index] : "";
+    }
+
+    void SetDescriptions(const std::vector<String> descriptions) {
+        m_descriptions = descriptions;
     }
 
   protected:
