@@ -197,9 +197,9 @@ void Rtc::SetupTimezones() {
     m_timezones.push_back({"UTC +1 Central European Time (DST)", {CEST, CET}});
     m_timezones.push_back({"UTC 0 London (DST)", {BST, GMT}});
     m_timezones.push_back({"UTC 0", {utcRule}});
-    m_timezones.push_back({"UTC -1", {utcMinus1}});
-    m_timezones.push_back({"UTC -2", {utcMinus2}});
-    m_timezones.push_back({"UTC -3", {utcMinus3}});
+    m_timezones.push_back({"UTC -1 (no DST)", {utcMinus1}});
+    m_timezones.push_back({"UTC -2 (no DST)", {utcMinus2}});
+    m_timezones.push_back({"UTC -3 (no DST)", {utcMinus3}});
     m_timezones.push_back(
         {"UTC -4 Eastern Daylight Time (DST)", {usEDT, usEST}});
     m_timezones.push_back(
