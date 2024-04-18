@@ -2,6 +2,7 @@
 ----
 - Add functional test to first power-up (requires using 3d printed cover (in black) to isolate light sensor)
 - Add support for CardClock 2.0
+- Add support for a few more UTC timezones (UTC-3 to +3)
 
 1.09
 ----

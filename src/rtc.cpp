@@ -27,6 +27,7 @@ void Rtc::Update() {
         m_receivedInterrupt = false;
         m_uptime++;
         GetTimeFromRTC();
+        // m_millisAtInterrupt = millis();
     }
 
     CheckNTPTime();
@@ -164,11 +165,15 @@ void Rtc::SetupTimezones() {
     TimeChangeRule aWDT = {"AWDT", week_t::First, Sun, Oct, 2, 540};
     TimeChangeRule aWST = {"AWST", week_t::First, Sun, Apr, 3, 480};
     TimeChangeRule msk = {"MSK", week_t::Last, Sun, Mar, 1, 180};
+    TimeChangeRule utcPlus2 = {"UTC+2", week_t::Last, Sun, Oct, 30, 120};
     TimeChangeRule CEST = {"CEST", week_t::Last, Sun, Mar, 27, 120};
     TimeChangeRule CET = {"CET ", week_t::Last, Sun, Oct, 30, 60};
     TimeChangeRule BST = {"BST", week_t::Last, Sun, Mar, 1, 60};
     TimeChangeRule GMT = {"GMT", week_t::Last, Sun, Oct, 2, 0};
     TimeChangeRule utcRule = {"UTC", week_t::Last, Sun, Mar, 1, 0};
+    TimeChangeRule utcMinus1 = {"UTC-1", week_t::Last, Sun, Mar, 1, -60};
+    TimeChangeRule utcMinus2 = {"UTC-2", week_t::Last, Sun, Mar, 1, -120};
+    TimeChangeRule utcMinus3 = {"UTC-3", week_t::Last, Sun, Mar, 1, -180};
     TimeChangeRule usEDT = {"EDT", week_t::Second, Sun, Mar, 12, -240};
     TimeChangeRule usEST = {"EST", First, Sun, Nov, 6, -300};
     TimeChangeRule usCDT = {"CDT", week_t::Second, Sun, Mar, 12, -300};
@@ -188,9 +193,13 @@ void Rtc::SetupTimezones() {
     m_timezones.push_back(
         {"UTC +8 Australia Western Time (DST)", {aWDT, aWST}});
     m_timezones.push_back({"UTC +3 Moscow Standard Time (no DST)", {msk}});
+    m_timezones.push_back({"UTC +2 (no DST)", {utcPlus2}});
     m_timezones.push_back({"UTC +1 Central European Time (DST)", {CEST, CET}});
     m_timezones.push_back({"UTC 0 London (DST)", {BST, GMT}});
     m_timezones.push_back({"UTC 0", {utcRule}});
+    m_timezones.push_back({"UTC -1", {utcMinus1}});
+    m_timezones.push_back({"UTC -2", {utcMinus2}});
+    m_timezones.push_back({"UTC -3", {utcMinus3}});
     m_timezones.push_back(
         {"UTC -4 Eastern Daylight Time (DST)", {usEDT, usEST}});
     m_timezones.push_back(
