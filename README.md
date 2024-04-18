@@ -1,5 +1,5 @@
 # FCOS - Foxie Clock Operating System
-This is the firmware that runs the [Foxie Clock 2.0](https://github.com/foxieproducts/fc2), and soon, the [CardClock 1.0](https://github.com/foxieproducts/cardclock).
+This is the firmware that runs the [Foxie Clock 2.0](https://github.com/foxieproducts/fc2) and the [CardClock 2.0](https://github.com/foxieproducts/cardclock2).
 
 ![Image of Foxie Clock 2.0](fc2.jpg)
 
@@ -53,8 +53,11 @@ When in configuration mode, the selected LED will light up and the number of tha
 4. Rainbow 2 (colors smoothly change, and are slightly "closer" together on the spectrum)
 5. Individual digit color control, use left/right to "select" the active digit, which will
    blink twice in white.
+6. Falling rain (rainbow)
+7. Falling rain (fixed)
+8. Holiday (CC2 only)
 
-*Note:* ANIM8tions are also changed via a `Press (quick)` in Clock mode.
+*Note:* ANIM8tions can also be changed via a `Press (quick)` in Clock mode.
 
 ### `7 - MINB` (0 - 9)
 This is the minimum brightness that the LEDs will use.
@@ -118,16 +121,3 @@ is displayed in purple numbers from `0-99`, then `100` is displayed in green
 right before rebooting on the new firmware.
 
 After the update, `INFO->Firmware Version` should display the same version.
-
-### Settings without labels on the PCB:
-#### `9 - Light Sensor Minimum Value`
-This is the minimum value that should be considered "no light"
-from the light sensor. This may be more than zero for some sensors,
-and can be verified via `INFO->Light Sensor Value` to read `0.0`
-in total darkness. Higher than `0.0` is undesirable and will prevent
-the LEDs from being scaled properly in low brightness environments.
-
-#### `10 - Light Sensor Maximum Value`
-This is the maximum value that should be considered "very bright" and
-will cause the LEDs to be at the maximum allowed brightness for this level
-and everything past.
