@@ -1,7 +1,7 @@
 # FCOS - Foxie Clock Operating System
 This is the firmware that runs the [Foxie Clock 2.0](https://github.com/foxieproducts/fc2) and the [CardClock 2.0](https://github.com/foxieproducts/cardclock2).
 
-![Image of Foxie Clock 2.0](fc2.jpg)
+![Image of Foxie CardClock 2.0 and Foxie Clock 2.0](cc2 and fc2.jpg)
 
 ## How do I use it? 
 Foxie Clocks can be in 3 different display modes: Clock, Set Time,
