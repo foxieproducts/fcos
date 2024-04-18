@@ -98,7 +98,7 @@ void HardwareTest_CC2(std::shared_ptr<Pixels> pixels,
     for (size_t i = 0; i <= 10; ++i) {
         ls.SetHwMin(LightSensor::HW_MIN + i);
         ls.ResetToCurrentSensorValue();
-        if (ls.GetJitterConstrainedAnalogValue() < 0.001f) {
+        if (ls.GetScaled() < 0.001f) {
             found = true;
             DPRINT("Found min:%d\n", LightSensor::HW_MIN + i);
             break;
@@ -120,7 +120,7 @@ void HardwareTest_CC2(std::shared_ptr<Pixels> pixels,
         pixels->DrawText(0, 3, "ERR2", RED);
         pixels->Show();
     } else {
-        pixels->DrawText(0, 3, " OK ", GREEN);  // everything and RTC is good
+        pixels->DrawText(1, 3, " OK ", GREEN);  // everything and RTC is good
         pixels->Show();
         (*settings)["TEST"] = 1;  // test success
         (*settings).Save();
