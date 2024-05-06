@@ -1,3 +1,7 @@
+1.11
+----
+- Add additional time on boot to wait for RTC to respond
+
 1.10
 ----
 - Add functional test to first power-up (requires using 3d printed cover (in black) to isolate light sensor)

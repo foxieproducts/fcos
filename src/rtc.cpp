@@ -5,9 +5,11 @@ Rtc::Rtc(std::shared_ptr<Settings> settings) : m_settings(settings) {
     GetTimeFromRTC();
     SetupTimezones();
 
-    // try to get the RTC initialized for up to 25ms
+    ElapsedTime::Delay(25);
+
+    // try to get the RTC initialized for up to 50ms
     ElapsedTime initTime;
-    while (!m_isInitialized && initTime.Ms() < 25) {
+    while (!m_isInitialized && initTime.Ms() < 50) {
         Update();
         ElapsedTime::Delay(1);
     }
