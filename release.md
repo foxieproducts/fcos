@@ -1,6 +1,7 @@
 1.11
 ----
 - Add additional time on boot to wait for RTC to respond
+- Now saves settings immediately on wifi connection
 
 1.10
 ----

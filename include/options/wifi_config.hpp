@@ -162,6 +162,7 @@ class WiFiConfig : public Numeric {
 #elif FCOS_CARDCLOCK || FCOS_CARDCLOCK2
             m_pixels->DrawTextScrolling("WIFI CONNECTED", GREEN);
 #endif
+            (*m_settings).Save();
         });
         m_wifiMgr->setSaveParamsCallback([&]() {
             // do stuff with the params (timezone)
