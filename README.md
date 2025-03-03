@@ -51,11 +51,14 @@ When in configuration mode, the selected LED will light up and the number of tha
 2. Rainbow (no animation)
 3. Rainbow 1 (colors smoothly change)
 4. Rainbow 2 (colors smoothly change, and are slightly "closer" together on the spectrum)
-5. Individual digit color control, use left/right to "select" the active digit, which will
-   blink twice in white.
+5. Individual digit color control, use left/right to "select" the active digit, which will  blink twice in white.
 6. Falling rain (rainbow)
 7. Falling rain (fixed)
-8. Holiday (CC2 only)
+8. Rainbow Rotate Opposite (colors rotate in opposite directions)
+9. Candle Flicker (simulates a flickering candle flame, use left/right to change flicker frequency and flame style)
+10. Holiday Lights (CC2 only)
+11. Starfield (CC2 only, simulates stars moving outward from the center)
+12. Snowfall (CC2 only, simulates falling snow with accumulation, use left/right to adjust brightness and color)
 
 *Note:* ANIM8tions can also be changed via a `Press (quick)` in Clock mode.
 
