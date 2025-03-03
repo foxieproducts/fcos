@@ -153,3 +153,40 @@ TEST_F(ButtonFx, AreRepeatEventsSent) {
     }
     EXPECT_GE(repeatEvents, 6);
 }
+
+TEST_F(ButtonFx, AreLongPressEventsSent) {
+    bool receivedLongPressEvent = false;
+    btn.config.handlerFunc = [&](const Button::Event_e evt) {
+        if (evt == Button::LONG_PRESS) {
+            receivedLongPressEvent = true;
+        }
+    };
+
+    UpdatePinState(LOW);  // Press the button
+    EXPECT_FALSE(receivedLongPressEvent);  // Long press event should not be sent immediately
+
+    // Wait just under the long press time
+    delay(btn.config.longPressTime - 10);
+    btn.Update();
+    EXPECT_FALSE(receivedLongPressEvent);  // Still not enough time for long press
+
+    // Wait until we exceed the long press time
+    delay(20);
+    btn.Update();
+    EXPECT_TRUE(receivedLongPressEvent);  // Now we should get the long press event
+    
+    // Verify that long press is only sent once
+    receivedLongPressEvent = false;
+    btn.Update();
+    EXPECT_FALSE(receivedLongPressEvent);  // Long press should not be sent again
+    
+    // Release and press again to verify long press can be triggered again
+    UpdatePinState(HIGH);  // Release the button
+    delay(btn.config.debounceTime + 1);
+    UpdatePinState(LOW);   // Press again
+    receivedLongPressEvent = false;
+    
+    delay(btn.config.longPressTime + 10);
+    btn.Update();
+    EXPECT_TRUE(receivedLongPressEvent);  // Long press should be sent again
+}

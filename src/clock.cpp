@@ -64,14 +64,14 @@ bool Clock::Left(const Button::Event_e evt) {
         // temporary hack for photos
         // m_rtc->SetTime(12, 34, 00);
     }
-    return evt != Button::REPEAT;  // when held, move to SetTime display
+    return evt != Button::LONG_PRESS;  // when long pressed, move to SetTime display
 };
 
 bool Clock::Right(const Button::Event_e evt) {
     if (evt == Button::PRESS) {
         m_anim->Right();
     }
-    return evt != Button::REPEAT;  // when held, move to ConfigMenu display
+    return evt != Button::LONG_PRESS;  // when long pressed, move to ConfigMenu display
 };
 
 // toggles between configured MINB=user and temporary MINB=0
@@ -109,7 +109,7 @@ void Clock::Press(const Button::Event_e evt) {
 #endif
         joy.WaitForNoButtonsPressed();
         PrepareToSaveSettings();
-    } else if (evt == Button::REPEAT) {
+    } else if (evt == Button::LONG_PRESS) {
         m_pixels->ToggleDarkMode();
         toggledDarkMode = true;
     }
@@ -124,11 +124,11 @@ void Clock::DrawClockDigits(const RgbColor color) {
     }
     int yPos = 0;
 #if FCOS_FOXIECLOCK
-    m_pixels->DrawChar(0, text[0], m_anim->digitColors[0]);
-    m_pixels->DrawChar(20, text[1], m_anim->digitColors[1]);
+    m_pixels->DrawChar(0, text[0], m_anim->GetAdjustedDigitColor(0), m_anim->GetAdjustedDigitColorEnd(0));
+    m_pixels->DrawChar(20, text[1], m_anim->GetAdjustedDigitColor(1), m_anim->GetAdjustedDigitColorEnd(1));
     //                         [2] is the colon
-    m_pixels->DrawChar(42, text[3], m_anim->digitColors[2]);
-    m_pixels->DrawChar(62, text[4], m_anim->digitColors[3]);
+    m_pixels->DrawChar(42, text[3], m_anim->GetAdjustedDigitColor(2), m_anim->GetAdjustedDigitColorEnd(2));
+    m_pixels->DrawChar(62, text[4], m_anim->GetAdjustedDigitColor(3), m_anim->GetAdjustedDigitColorEnd(3));
 
     if ((m_pixels->GetBrightness() >= 0.05f || (*m_settings)["MINB"] != "0")) {
     }
@@ -136,19 +136,19 @@ void Clock::DrawClockDigits(const RgbColor color) {
 #if FCOS_CARDCLOCK2
     yPos = 3;
 #endif
-    m_pixels->DrawChar(0, yPos, text[0], m_anim->digitColors[0]);
-    m_pixels->DrawChar(4, yPos, text[1], m_anim->digitColors[1]);
+    m_pixels->DrawChar(0, yPos, text[0], m_anim->GetAdjustedDigitColor(0), m_anim->GetAdjustedDigitColorEnd(0));
+    m_pixels->DrawChar(4, yPos, text[1], m_anim->GetAdjustedDigitColor(1), m_anim->GetAdjustedDigitColorEnd(1));
     //                         [2] is the colon
-    m_pixels->DrawChar(10, yPos, text[3], m_anim->digitColors[2]);
-    m_pixels->DrawChar(14, yPos, text[4], m_anim->digitColors[3]);
+    m_pixels->DrawChar(10, yPos, text[3], m_anim->GetAdjustedDigitColor(2), m_anim->GetAdjustedDigitColorEnd(2));
+    m_pixels->DrawChar(14, yPos, text[4], m_anim->GetAdjustedDigitColor(3), m_anim->GetAdjustedDigitColorEnd(3));
 #endif  // FCOS_CARDCLOCK || FCOS_CARDCLOCK2
     if (!m_pixels->IsDarkModeEnabled() || m_pixels->GetBrightness() >= 0.05f) {
-        DrawSeparator(8, m_anim->GetColonColor());
+        DrawSeparator(8, m_anim->GetAdjustedColonColor());
     } else {
 #if FCOS_FOXIECLOCK
         // m_pixels->DrawChar(8, yPos, ':', m_anim->GetColonColor());
 #elif FCOS_CARDCLOCK || FCOS_CARDCLOCK2
-        m_pixels->DrawChar(8, yPos, ':', m_anim->GetColonColor());
+        m_pixels->DrawChar(8, yPos, ':', m_anim->GetAdjustedColonColor(), m_anim->GetAdjustedColonColorEnd());
 #endif
     }
 }
@@ -159,7 +159,7 @@ void Clock::DrawSeparator(const int x, RgbColor color) {
         m_blinkerTimer.Reset();
     }
     const auto scale = &Pixels::ScaleBrightness;
-    RgbColor bottomColor = m_anim->GetColonColor();
+    RgbColor bottomColor = m_anim->GetAdjustedColonColor();
     RgbColor topColor = bottomColor;
 
     if (m_blinkerRunning) {

@@ -61,7 +61,6 @@ size_t LightSensor::GetCurrentAnalogValue() {
     return (((val - m_hwMin) * FILTER_RANGE) / (m_hwMax - m_hwMin)) +
            FILTER_VAL_MIN;
 }
-
 void LightSensor::ResetToCurrentSensorValue() {
     m_average = GetMultipleAnalogSamples();
     SetCacheSizeAndCurrentValue(CACHE_SIZE, m_average);
@@ -78,3 +77,4 @@ void LightSensor::SetCacheSizeAndCurrentValue(const size_t cacheSize,
 void LightSensor::SetAnalogReadFunc(const AnalogReadFunc_t& func) {
     m_analogReadFunc = func;
 }
+

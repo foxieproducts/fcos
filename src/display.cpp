@@ -82,9 +82,9 @@ void DisplayManager::ActivateTemporaryDisplay(
 }
 
 void DisplayManager::ConfigureJoystick() {
-    m_joy->left.config.repeatRate = 750;
-    m_joy->right.config.repeatRate = 750;
-    m_joy->press.config.repeatRate = 750;
+    m_joy->left.config.longPressTime = 750;
+    m_joy->right.config.longPressTime = 750;
+    m_joy->press.config.longPressTime = 750;
 
     m_joy->press.config.handlerFunc = [&](const Button::Event_e evt) {
         m_displays[m_activeDisplay]->Press(evt);
@@ -103,7 +103,7 @@ void DisplayManager::ConfigureJoystick() {
 
     m_joy->left.config.handlerFunc = [&](const Button::Event_e evt) {
         const bool handled = m_displays[m_activeDisplay]->Left(evt);
-        if (!handled && (evt == Button::PRESS || evt == Button::REPEAT)) {
+        if (!handled && (evt == Button::PRESS || evt == Button::LONG_PRESS)) {
             if (m_activeDisplay == 0) {
                 return;  // this _could_ wrap around, but it doesn't for now
             }
@@ -114,7 +114,7 @@ void DisplayManager::ConfigureJoystick() {
 
     m_joy->right.config.handlerFunc = [&](const Button::Event_e evt) {
         const bool handled = m_displays[m_activeDisplay]->Right(evt);
-        if (!handled && (evt == Button::PRESS || evt == Button::REPEAT)) {
+        if (!handled && (evt == Button::PRESS || evt == Button::LONG_PRESS)) {
             if (m_activeDisplay == m_displays.size() - 1) {
                 return;  // this _could_ wrap around, but it doesn't for now
             }

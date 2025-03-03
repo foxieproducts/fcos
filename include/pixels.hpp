@@ -161,8 +161,10 @@ class Pixels {
     int DrawText(int x, int y, String text, const RgbColor color);
 
     int DrawChar(int x, char character, const RgbColor color);
+    int DrawChar(int x, char character, const RgbColor beginColor, const RgbColor endColor);
 
     int DrawChar(int x, int y, char character, const RgbColor color);
+    int DrawChar(int x, int y, char character, const RgbColor beginColor, const RgbColor endColor);
 
     static RgbColor ColorWheel(uint8_t pos);
 

@@ -121,16 +121,16 @@ else if CHAR('9',
         0,    0,
            0,    0)
 else if (character == ':') {
-   Set(40, color);
-   Set(41, color);
+   Set(40, beginColor);
+   Set(41, endColor);
    return 2;
 } else if (character == '.') {
-   Set(40, color);
+   Set(40, beginColor);
    return 2;
 } else if (character == CHAR_UP_ARROW) {
-   Set(91, color);
+   Set(91, beginColor);
    return 2;
 } else if (character == CHAR_DOWN_ARROW) {
-   Set(90, color);
+   Set(90, beginColor);
    return 2;
 }

@@ -89,7 +89,7 @@ void ConfigMenu::Down(const Button::Event_e evt) {
 
 // holding left exits config menu
 bool ConfigMenu::Left(const Button::Event_e evt) {
-    if (evt == Button::REPEAT) {
+    if (evt == Button::LONG_PRESS) {
         m_settings->Save();
         return false;
     }
@@ -98,7 +98,7 @@ bool ConfigMenu::Left(const Button::Event_e evt) {
 
 // pressing right activates the selected item's Display
 bool ConfigMenu::Right(const Button::Event_e evt) {
-    if (evt == Button::PRESS || evt == Button::REPEAT) {
+    if (evt == Button::PRESS) {
         if (m_items[m_selected].display) {
             GetManager()->ActivateTemporaryDisplay(m_items[m_selected].display);
             m_subDisplayActive = true;

@@ -10,6 +10,7 @@ class Button {
         PRESS,
         REPEAT,
         RELEASE,
+        LONG_PRESS,
     };
 
   private:
@@ -24,6 +25,7 @@ class Button {
     bool m_debouncing{false};
     bool m_isPressed{false};
     bool m_pressEventSent{false};
+    bool m_longPressEventSent{false};
 
     ElapsedTime m_etInState;
     ElapsedTime m_etSinceRepeat;
@@ -38,7 +40,8 @@ class Button {
         size_t repeatRate{50};
         size_t beforeRepeat{400};
         size_t beforePress{0};
-        size_t debounceTime{10};
+        size_t debounceTime{25};
+        size_t longPressTime{1000}; // time in ms to trigger a long press
         HandlerFunc_t handlerFunc;
     } config;
 
@@ -64,6 +67,8 @@ class Button {
     bool HasPinStateChanged();
 
     bool IsDebouncing();
+    
+    bool ShouldSendLongPress() const;
 };
 
 class Joystick {

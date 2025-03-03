@@ -15,11 +15,17 @@ void Button::Update() {
             SendEvent(PRESS);
         } else if (!m_isPressed) {
             SendEvent(RELEASE);
+            m_longPressEventSent = false;
         }
     }
 
     if (ShouldSendDelayedPress()) {
         SendEvent(PRESS);
+    }
+
+    if (ShouldSendLongPress()) {
+        SendEvent(LONG_PRESS);
+        m_longPressEventSent = true;
     }
 
     if (ShouldRepeat()) {
@@ -41,7 +47,7 @@ void Button::SetEnabled(const bool enabled) {
 
 void Button::Reset() {
     m_etInState.Reset();
-    m_isPressed = m_pressEventSent = m_debouncing = false;
+    m_isPressed = m_pressEventSent = m_longPressEventSent = m_debouncing = false;
 }
 
 void Button::SetDigitalReadFunc(const DigitalReadFunc_t& func) {
@@ -68,6 +74,11 @@ bool Button::ShouldRepeat() {
     return !HasPinStateChanged() && m_isPressed && config.canRepeat &&
            m_pressEventSent && m_etInState.Ms() >= config.beforeRepeat &&
            (m_etSinceRepeat.Ms() >= config.repeatRate);
+}
+
+bool Button::ShouldSendLongPress() const {
+    return m_isPressed && !m_longPressEventSent && m_pressEventSent && 
+           m_etInState.Ms() >= config.longPressTime;
 }
 
 bool Button::HasPinStateChanged() {

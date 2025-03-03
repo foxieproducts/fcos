@@ -137,10 +137,18 @@ int Pixels::DrawText(int x, int y, String text, const RgbColor color) {
 }
 
 int Pixels::DrawChar(int x, char character, const RgbColor color) {
-    return DrawChar(x, 0, character, color);
+    return DrawChar(x, 0, character, color, color);
+}
+
+int Pixels::DrawChar(int x, char character, const RgbColor beginColor, const RgbColor endColor) {
+    return DrawChar(x, 0, character, beginColor, endColor);
 }
 
 int Pixels::DrawChar(int x, int y, char character, const RgbColor color) {
+    return DrawChar(x, y, character, color, color);
+}
+
+int Pixels::DrawChar(int x, int y, char character, const RgbColor beginColor, const RgbColor endColor) {
     std::vector<uint8_t> charData;
     // clang-format off
         // --------------- 
@@ -161,10 +169,38 @@ int Pixels::DrawChar(int x, int y, char character, const RgbColor color) {
 
         const int charWidth = charData.size() / CHAR_HEIGHT;
         const uint8_t* data = &charData[0];
+        
+        // Count total active pixels for gradient calculation
+        int totalActivePixels = 0;
+        int activePixelCount = 0;
+        const uint8_t* countData = &charData[0];
+        for (int row = 0; row < CHAR_HEIGHT; ++row) {
+            for (int column = 0; column < charWidth; ++column) {
+                if (*countData) {
+                    totalActivePixels++;
+                }
+                countData++;
+            }
+        }
+        
+        // If no active pixels, return early
+        if (totalActivePixels == 0) {
+            return charWidth + 1;
+        }
+        
+        // Draw the character with gradient
         for (int row = 0; row < CHAR_HEIGHT; ++row) {
             for (int column = x; column < x + charWidth; ++column) {
                 if (column >= 0 && column < DISPLAY_WIDTH && *data) {
-                    Set(column, y + row, color);
+                    // Calculate gradient color based on position
+                    float progress = (float)activePixelCount / (totalActivePixels - 1);
+                    if (totalActivePixels == 1) {
+                        progress = 0.5f; // If only one pixel, use middle color
+                    }
+                    
+                    RgbColor gradientColor = RgbColor::LinearBlend(beginColor, endColor, progress);
+                    Set(column, y + row, gradientColor);
+                    activePixelCount++;
                 }
                 data++;
             }
@@ -197,16 +233,64 @@ int Pixels::DrawChar(int x, int y, char character, const RgbColor color) {
 
     const uint8_t* data = &charData[0];
     const size_t charWidth = charData.size();
-    for (size_t pos = 0; pos < charWidth; ++pos) {
-        if (*data) {
-            Set(x + pos, color);
-            // in edge-lit mode in the darkness, only use 1 LED per
-            // digit
-            if (!m_isPXLmode && m_currentBrightness == 0.0f && m_useDarkMode) {
-                break;
+    
+    if (m_isPXLmode) {
+        // For PXL mode, implement a gradient across all active pixels
+        int totalActivePixels = 0;
+        int activePixelCount = 0;
+        
+        // First count active pixels
+        const uint8_t* countData = &charData[0];
+        for (size_t pos = 0; pos < charWidth; ++pos) {
+            if (*countData) {
+                totalActivePixels++;
             }
+            countData++;
         }
-        data++;
+        
+        // Then draw with gradient
+        for (size_t pos = 0; pos < charWidth; ++pos) {
+            if (*data) {
+                float progress = (float)activePixelCount / (totalActivePixels - 1);
+                if (totalActivePixels == 1) {
+                    progress = 0.5f; // If only one pixel, use middle color
+                }
+                
+                RgbColor gradientColor = RgbColor::LinearBlend(beginColor, endColor, progress);
+                Set(x + pos, gradientColor);
+                activePixelCount++;
+                
+                // in edge-lit mode in the darkness, only use 1 LED per
+                // digit
+                if (!m_isPXLmode && m_currentBrightness == 0.0f && m_useDarkMode) {
+                    break;
+                }
+            }
+            data++;
+        }
+    } else {
+        // For edge-lit mode, use beginColor for first LED and endColor for second LED
+        bool firstLEDSet = false;
+        
+        for (size_t pos = 0; pos < charWidth; ++pos) {
+            if (*data) {
+                if (!firstLEDSet) {
+                    Set(x + pos, beginColor);
+                    firstLEDSet = true;
+                } else {
+                    Set(x + pos, endColor);
+                    // Only use two LEDs in edge-lit mode
+                    break;
+                }
+                
+                // in edge-lit mode in the darkness, only use 1 LED per
+                // digit
+                if (m_currentBrightness == 0.0f && m_useDarkMode) {
+                    break;
+                }
+            }
+            data++;
+        }
     }
 
     return charWidth;

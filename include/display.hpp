@@ -24,7 +24,7 @@ class DisplayManager;  // forward declaration
 // changing the Display that the user is seeing.
 //
 // For example, the FoxieClock display only returns 'false' when the user
-// holds the joystick left or right (causing a repeat every 500ms),
+// holds the joystick left or right (causing a long press after 750ms),
 // otherwise it returns true (successfully handled).
 class Display {
   protected:

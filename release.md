@@ -1,3 +1,10 @@
+1.12
+----
+- Added 4 new animations 
+  - Rainbow Opposite, Candle flicker (both FC2 and CC2)
+  - Starfield and Snowfall (CC2 only)
+- Improved long press behavior with enabling dark mode and configuring time/settings
+
 1.11
 ----
 - Add additional time on boot to wait for RTC to respond

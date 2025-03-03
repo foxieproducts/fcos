@@ -80,29 +80,33 @@ void SetTime::Down(const Button::Event_e evt) {
 }
 
 bool SetTime::Left(const Button::Event_e evt) {
-    if (evt == Button::PRESS || evt == Button::REPEAT) {
+    if (evt == Button::PRESS) {
         if (m_mode == SET_HOUR) {
-            if (evt == Button::REPEAT) {
-                return false;  // move to next Display to the left
-            }
+            // Normal press just handles the hour mode
         } else if (m_mode == SET_MINUTE) {
             m_mode = SET_HOUR;
         } else if (m_mode == SET_SECOND) {
             m_mode = SET_MINUTE;
         }
+    } else if (evt == Button::LONG_PRESS && m_mode == SET_HOUR) {
+        return false;  // move to next Display to the left
     }
     return true;
 }
 
 bool SetTime::Right(const Button::Event_e evt) {
-    if (evt == Button::PRESS || evt == Button::REPEAT) {
+    if (evt == Button::PRESS) {
         if (m_mode == SET_HOUR) {
             m_mode = SET_MINUTE;
         } else if (m_mode == SET_MINUTE) {
             m_mode = SET_SECOND;
         } else if (m_mode == SET_SECOND) {
-            return false;  // move to next Display to the right
+            SetRTCIfTimeChanged();
+            // Normal press just handles the second mode
         }
+    } else if (evt == Button::LONG_PRESS && m_mode == SET_SECOND) {
+        SetRTCIfTimeChanged();
+        return false;  // move to next Display to the right
     }
     return true;
 }
